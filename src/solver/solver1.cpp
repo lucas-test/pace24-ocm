@@ -45,7 +45,15 @@ int lower_bound_pre_order(const vector<vector<int>>& adj, const vector<int>& pre
 
 
 
-
+/**
+ * @brief 
+ * 
+ * @param adj i -> adj[i][0] is increasing, j -> adj[i][j] is increasing
+ * @param to_do sorted by adj[todo[i]][0]
+ * @param order 
+ * @param best_order 
+ * @param best_order_nc 
+ */
 void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order, vector<int>& best_order, int& best_order_nc ){
 
 
@@ -72,10 +80,12 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
         // std::cout << "lb:" << lower_bound_pre_order(adj, order, to_do) << "\n";
 
         // Check if there is a left degree 1
-        int min_id = 100000; // infinity
+        int min_id = adj[to_do[0]][0]; 
         vector<int> left_ids;
         for (int i = 0; i < to_do.size(); i++){
             int x = to_do[i];
+            if (adj[x][0] > min_id) break;
+
             if (adj[x].size() == 1){
                 if (adj[x][0] < min_id){
                     min_id = adj[x][0];
@@ -90,13 +100,6 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
                     min_id = adj[x][0];
                     left_ids.clear();
                 }
-                // for (int j = 0; j < adj[x].size(); j ++){
-                //     if (adj[x][j] < min_id){
-                //         min_id = adj[x][j];
-                //         left_ids.clear();
-                //     }
-                // }
-                
             }
         }
 
@@ -106,17 +109,14 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
             for(int j = left_ids.size() - 1; j >= 0; j--){
                 int left_id = left_ids[j];
                 int x = to_do[left_id];
-                // std::cout << x << " " ;
                 left_vertices.push_back(x);
                 to_do.erase(to_do.begin() + left_id);
                 order.push_back(x);
             }
-            // std::cout << "\n";
             aux(adj, to_do, order, best_order, best_order_nc);
 
             for( int j = 0 ; j < left_ids.size(); j++){
                 int x = left_vertices[j];
-                // to_do.push_back(x);
                 to_do.insert(to_do.begin() + left_ids[j], x);
                 order.pop_back();
             }
@@ -124,19 +124,16 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
         }
 
         // Search for the leftmost min degree-2
-        min_id = 100000; // infinity
+        min_id = adj[to_do[0]][0]; 
         int left2_id = -1;
         int second_neighbor = -1;
         for (int i = 0; i < to_do.size(); i++){
             int x = to_do[i];
+            if (adj[x][0] > min_id) break;
+
             if (adj[x].size() == 2){
                 int a = adj[x][0];
                 int b = adj[x][1]; // by hypothesis adj[x][1] > adj[x][0]
-                // if ( b < a ){
-                //     a = adj[x][1];
-                //     b = adj[x][0]; // swap so that a < b
-                // }
-                // adj[x][0] < adj[x][1] it would be simpler if hypothesis
                 if (a < min_id){
                     min_id = a;
                     left2_id = i;
@@ -150,15 +147,6 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
             }
             else if (adj[x].size() >= 1) {
                 int a = adj[x][0]; // min of adj[x]
-                // int b = adj[x][0]; // max of adj[x]
-                // for (int j = 0; j < adj[x].size(); j ++){
-                //     if ( adj[x][j] < a){
-                //         a = adj[x][j];
-                //     }
-                //     if (adj[x][j] > b){
-                //         b = adj[x][j];
-                //     }
-                // }
                 int b = adj[x][adj[x].size()-1];
 
                 if (a < min_id){
@@ -174,7 +162,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
 
         if (left2_id >= 0){
             int x = to_do[left2_id];
-            std::cout << "left-2 " << x << " degree: " << adj[to_do[left2_id]].size() << "\n";
+            // std::cout << "left-2 " << x << " degree: " << adj[to_do[left2_id]].size() << "\n";
             
             to_do.erase(to_do.begin() + left2_id);
             order.push_back(x);
@@ -183,6 +171,36 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
             order.pop_back();
             return;
         }
+
+
+        // Check if to_do[0] is a source
+        for (int i = 0; i < 5 && i < to_do.size(); i ++){
+            int max_neighbor = adj[to_do[i]][adj[to_do[i]].size()-1];
+            bool is_source = true;
+            for (int j = 0; j < to_do.size(); j++){
+                if ( j == i) continue;
+                if (adj[to_do[j]][0] >= max_neighbor){
+                    break;
+                }
+                std::pair<int, int> r = crossings_between_pair(adj[i], adj[j]);
+                if (r.first > r.second){
+                    is_source = false;
+                    break;
+                }
+            }
+
+            if (is_source){
+                // std::cout << "todo[" << i << "] is a source\n";
+                int x = to_do[i];
+                to_do.erase(to_do.begin() + i);
+                order.push_back(x);
+                aux(adj, to_do, order, best_order, best_order_nc);
+                to_do.insert(to_do.begin() + i, x);
+                order.pop_back();
+                return;
+            }
+        }
+        
 
         int lb = lower_bound_pre_order(adj, order, to_do);
         // std::cout << "lower bound pre order " << lb << " " << order.size() << "\n";
@@ -205,7 +223,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
 }
 
 int solver1(const vector<vector<int>>& adj) {
-
+    std::cout << "loal\n";
     vector<int> pos = greedy_sequential(adj);
     vector<int> best_order(pos.size());
     for (int i = 0; i < pos.size(); i++) {
@@ -247,7 +265,7 @@ int solver1(const vector<vector<int>>& adj) {
     // }
     // std::cout << std::endl;
 
-    // std::cout << best_order_nc << "\n";
+    std::cout << best_order_nc << "\n";
 
     return best_order_nc;
 }

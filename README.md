@@ -14,6 +14,16 @@ Run on every exact graph and creates `results.out`
 
     ./all.sh graphs/exact
 
+## Reduction rules
+
+A source is a vertex u such that c(u,v) <= c(v,u) for every vertex v (where c(u,v) is the number of crossings between u and v when they are in order u < v).
+
+There exists an optimal ordering such that the source u is at the beginning.
+
+There can exist several sources.
+
+
+
 ## Lower bounds
 
 ### Between low vertices
