@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Initialize an empty file to store the results
+if [ "$#" -eq 0 ]; then
+    echo "Error: No directory specified."
+    echo "Usage: ./all.sh <directory>"
+    exit 1
+fi
+
 > results.out
 
-# Loop through each .gr file in the graphs/exact directory
-for file in graphs/exact/*.gr; do
-    # Execute the command for each file and append the output to results.out
+dir=$1
+for file in "$dir"/*.gr; do
     ./bin/main "$file" >> results.out
 done

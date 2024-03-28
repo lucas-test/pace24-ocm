@@ -10,9 +10,9 @@ Run on a single graph:
 
     ./bin/main graphs/exact/1.gr
 
-Run on every exact graph:
+Run on every exact graph and creates `results.out`
 
-    ./all.sh
+    ./all.sh graphs/exact
 
 ## Lower bounds
 
