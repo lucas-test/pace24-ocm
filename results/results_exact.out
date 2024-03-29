@@ -1,0 +1,348 @@
+
+graphs/exact/1.gr
+lower bound: 1482
+greedy nb crossings: 1482
+min nb crossings: 1482
+Execution of ./bin/main for 1.gr took 0 seconds.
+
+graphs/exact/2.gr
+lower bound: 3080
+greedy nb crossings: 3080
+min nb crossings: 3080
+Execution of ./bin/main for 2.gr took 0 seconds.
+
+graphs/exact/3.gr
+lower bound: 6320
+greedy nb crossings: 6320
+min nb crossings: 6320
+Execution of ./bin/main for 3.gr took 0 seconds.
+
+graphs/exact/4.gr
+lower bound: 6480
+greedy nb crossings: 6480
+min nb crossings: 6480
+Execution of ./bin/main for 4.gr took 0 seconds.
+
+graphs/exact/5.gr
+lower bound: 9702
+greedy nb crossings: 9702
+min nb crossings: 9702
+Execution of ./bin/main for 5.gr took 0 seconds.
+
+graphs/exact/6.gr
+lower bound: 11990
+greedy nb crossings: 11990
+min nb crossings: 11990
+Execution of ./bin/main for 6.gr took 1 seconds.
+
+graphs/exact/7.gr
+lower bound: 14520
+greedy nb crossings: 14520
+min nb crossings: 14520
+Execution of ./bin/main for 7.gr took 1 seconds.
+
+graphs/exact/8.gr
+lower bound: 16256
+greedy nb crossings: 16256
+min nb crossings: 16256
+Execution of ./bin/main for 8.gr took 1 seconds.
+
+graphs/exact/9.gr
+lower bound: 19740
+greedy nb crossings: 19740
+min nb crossings: 19740
+Execution of ./bin/main for 9.gr took 1 seconds.
+
+graphs/exact/10.gr
+lower bound: 16555
+greedy nb crossings: 16555
+min nb crossings: 16555
+Execution of ./bin/main for 10.gr took 1 seconds.
+
+graphs/exact/11.gr
+lower bound: 20089
+greedy nb crossings: 20089
+min nb crossings: 20089
+Execution of ./bin/main for 11.gr took 2 seconds.
+
+graphs/exact/12.gr
+lower bound: 829
+greedy nb crossings: 829
+min nb crossings: 829
+Execution of ./bin/main for 12.gr took 0 seconds.
+
+graphs/exact/13.gr
+lower bound: 2744
+greedy nb crossings: 2744
+min nb crossings: 2744
+Execution of ./bin/main for 13.gr took 0 seconds.
+
+graphs/exact/14.gr
+lower bound: 5316
+greedy nb crossings: 5316
+min nb crossings: 5316
+Execution of ./bin/main for 14.gr took 0 seconds.
+
+graphs/exact/15.gr
+lower bound: 9500
+greedy nb crossings: 9500
+min nb crossings: 9500
+Execution of ./bin/main for 15.gr took 0 seconds.
+
+graphs/exact/16.gr
+lower bound: 11068
+greedy nb crossings: 11068
+min nb crossings: 11068
+Execution of ./bin/main for 16.gr took 0 seconds.
+
+graphs/exact/17.gr
+lower bound: 33251
+greedy nb crossings: 33251
+min nb crossings: 33251
+Execution of ./bin/main for 17.gr took 5 seconds.
+
+graphs/exact/18.gr
+lower bound: 11836
+greedy nb crossings: 11879
+min nb crossings: 11841
+Execution of ./bin/main for 18.gr took 3 seconds.
+
+graphs/exact/19.gr
+
+graphs/exact/20.gr
+
+graphs/exact/21.gr
+lower bound: 5174
+greedy nb crossings: 5182
+min nb crossings: 5176
+Execution of ./bin/main for 21.gr took 1 seconds.
+
+graphs/exact/22.gr
+
+graphs/exact/23.gr
+
+graphs/exact/24.gr
+
+graphs/exact/25.gr
+
+graphs/exact/26.gr
+
+graphs/exact/27.gr
+lower bound: 3230
+greedy nb crossings: 3234
+min nb crossings: 3230
+Execution of ./bin/main for 27.gr took 0 seconds.
+
+graphs/exact/28.gr
+lower bound: 1559
+greedy nb crossings: 1559
+min nb crossings: 1559
+Execution of ./bin/main for 28.gr took 0 seconds.
+
+graphs/exact/29.gr
+lower bound: 2776
+greedy nb crossings: 2778
+min nb crossings: 2776
+Execution of ./bin/main for 29.gr took 0 seconds.
+
+graphs/exact/30.gr
+lower bound: 15024
+greedy nb crossings: 15024
+min nb crossings: 15024
+Execution of ./bin/main for 30.gr took 0 seconds.
+
+graphs/exact/31.gr
+
+graphs/exact/32.gr
+
+graphs/exact/33.gr
+
+graphs/exact/34.gr
+
+graphs/exact/35.gr
+
+graphs/exact/36.gr
+
+graphs/exact/37.gr
+
+graphs/exact/38.gr
+
+graphs/exact/39.gr
+
+graphs/exact/40.gr
+
+graphs/exact/41.gr
+
+graphs/exact/42.gr
+
+graphs/exact/43.gr
+
+graphs/exact/44.gr
+
+graphs/exact/45.gr
+
+graphs/exact/46.gr
+
+graphs/exact/47.gr
+
+graphs/exact/48.gr
+
+graphs/exact/49.gr
+
+graphs/exact/50.gr
+
+graphs/exact/51.gr
+
+graphs/exact/52.gr
+
+graphs/exact/53.gr
+
+graphs/exact/54.gr
+
+graphs/exact/55.gr
+lower bound: 82205
+greedy nb crossings: 82205
+min nb crossings: 82205
+Execution of ./bin/main for 55.gr took 0 seconds.
+
+graphs/exact/56.gr
+lower bound: 100013
+greedy nb crossings: 100013
+min nb crossings: 100013
+Execution of ./bin/main for 56.gr took 0 seconds.
+
+graphs/exact/57.gr
+lower bound: 173013
+greedy nb crossings: 173013
+min nb crossings: 173013
+Execution of ./bin/main for 57.gr took 0 seconds.
+
+graphs/exact/58.gr
+
+graphs/exact/59.gr
+
+graphs/exact/60.gr
+
+graphs/exact/61.gr
+
+graphs/exact/62.gr
+
+graphs/exact/63.gr
+
+graphs/exact/64.gr
+
+graphs/exact/65.gr
+
+graphs/exact/66.gr
+
+graphs/exact/67.gr
+
+graphs/exact/68.gr
+
+graphs/exact/69.gr
+
+graphs/exact/70.gr
+lower bound: 117037
+greedy nb crossings: 117037
+min nb crossings: 117037
+Execution of ./bin/main for 70.gr took 0 seconds.
+
+graphs/exact/71.gr
+lower bound: 132493
+greedy nb crossings: 132493
+min nb crossings: 132493
+Execution of ./bin/main for 71.gr took 0 seconds.
+
+graphs/exact/72.gr
+lower bound: 176033
+greedy nb crossings: 176033
+min nb crossings: 176033
+Execution of ./bin/main for 72.gr took 0 seconds.
+
+graphs/exact/73.gr
+
+graphs/exact/74.gr
+
+graphs/exact/75.gr
+
+graphs/exact/76.gr
+
+graphs/exact/77.gr
+
+graphs/exact/78.gr
+
+graphs/exact/79.gr
+
+graphs/exact/80.gr
+
+graphs/exact/81.gr
+
+graphs/exact/82.gr
+
+graphs/exact/83.gr
+
+graphs/exact/84.gr
+
+graphs/exact/85.gr
+lower bound: 92759
+greedy nb crossings: 92759
+min nb crossings: 92759
+Execution of ./bin/main for 85.gr took 0 seconds.
+
+graphs/exact/86.gr
+lower bound: 200617
+greedy nb crossings: 200617
+min nb crossings: 200617
+Execution of ./bin/main for 86.gr took 0 seconds.
+
+graphs/exact/87.gr
+lower bound: 236782
+greedy nb crossings: 236782
+min nb crossings: 236782
+Execution of ./bin/main for 87.gr took 0 seconds.
+
+graphs/exact/88.gr
+lower bound: 241803
+greedy nb crossings: 241803
+min nb crossings: 241803
+Execution of ./bin/main for 88.gr took 0 seconds.
+
+graphs/exact/89.gr
+lower bound: 236418
+greedy nb crossings: 236418
+min nb crossings: 236418
+Execution of ./bin/main for 89.gr took 0 seconds.
+
+graphs/exact/90.gr
+lower bound: 257813
+greedy nb crossings: 257813
+min nb crossings: 257813
+Execution of ./bin/main for 90.gr took 0 seconds.
+
+graphs/exact/91.gr
+lower bound: 268908
+greedy nb crossings: 268908
+min nb crossings: 268908
+Execution of ./bin/main for 91.gr took 0 seconds.
+
+graphs/exact/92.gr
+
+graphs/exact/93.gr
+
+graphs/exact/94.gr
+
+graphs/exact/95.gr
+
+graphs/exact/96.gr
+
+graphs/exact/97.gr
+
+graphs/exact/98.gr
+
+graphs/exact/99.gr
+
+graphs/exact/100.gr
+lower bound: 346841
+greedy nb crossings: 346841
+min nb crossings: 346841
+Execution of ./bin/main for 100.gr took 0 seconds.

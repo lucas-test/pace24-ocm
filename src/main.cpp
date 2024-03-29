@@ -12,6 +12,7 @@
 using std::vector;
 
 void search_random(void);
+void compare_greedy_insertion_orders(const std::vector<std::vector<int>>& adj);
 
 
 int main(int argc, char* argv[]) {
@@ -24,37 +25,97 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::cout << argv[1] << std::endl;
+    std::cout << "\n" << argv[1] << std::endl;
 
 
     vector<vector<int>> adj = load_file(argv[1]);
-    std::cout << adj.size() << "\n";
-    // print_adj(adj);
 
     reduce_degree_0(adj);
-    std::cout << adj.size() << "\n";
-    print_adj(adj);
+    // std::cout << adj.size() << "\n";
 
 
     // Solver1 test
-    std::cout << "Lower bound: " << lower_bound(adj) << "\n";
+    std::cout << "lower bound: " << lower_bound(adj) << "\n";
+
+    // std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
+
+    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    //     return a.size() < b.size();
+    // });
+
+    //     std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
+
+
+    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    //     return a.size() > b.size();
+    // });
+
+    //     std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
+
+
+    // std::sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
+    //    if (a.empty() || b.empty()) {
+    //         return a.size() < b.size();
+    //     } else {
+    //         return *std::max_element(a.begin(), a.end()) > *std::max_element(b.begin(), b.end());
+    //     }
+    // });
+    // print_adj(adj);
+
     solver1(adj);
 
+        // std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
 
-    // std::cout << "Adjacencies: " << "\n";
-    // print_adj(adj);
-    // std::cout << "Lower bound: " << lower_bound(adj) << "\n";
 
-    // vector<int> pos = greedy_sequential(adj);
-    // std::cout << "Number of crossings: " << nb_crossings(adj, pos) << "\n";
 
-    // int lb = lower_bound(adj);
-    // int nc = nb_crossings(adj, pos);
-    // std::cout << argv[1] << " " << lb << " " << nc << " ";
+    // // Sort by increasing degree
+    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    //     return a.size() < b.size();
+    // });
+    // int greedy_inc_deg = nb_crossings(adj, greedy_sequential(adj));
+    // std::cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
+
+    // // Sort by decreasing degree
+    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    //     return a.size() > b.size();
+    // });
+    // vector<int> greedy_dec_deg_pos = greedy_sequential(adj);
+    // int greedy_dec_deg = nb_crossings(adj, greedy_sequential(adj));
+    // std::cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
     
+    // vector<int> greedy_dec_deg_order(greedy_dec_deg_pos.size());
+    // for (int i = 0; i < greedy_dec_deg_pos.size(); i++) {
+    //     greedy_dec_deg_order[greedy_dec_deg_pos[i]] = i ;
+    // }
+    // int greedy_dec_deg_order_nc = nb_crossings_from_order(adj, greedy_dec_deg_order);
+    // std::cout << "greedy decreasing degree order: " << greedy_dec_deg_order_nc << "\n";
 
 
-    // sort by increasing max neighbor
+    return 0;
+}
+
+
+void compare_greedy_insertion_orders(const vector<vector<int>>& adj){
+
+    // // Natural
+    // int greedy_nat = nb_crossings(adj, greedy_sequential(adj));
+    // // std::cout << "greedy: " << greedy_nat << "\n";
+
+    // // Sort by increasing degree
+    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    //     return a.size() < b.size();
+    // });
+    // int greedy_inc_deg = nb_crossings(adj, greedy_sequential(adj));
+    // // std::cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
+
+    // // Sort by decreasing degree
+    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    //     return a.size() > b.size();
+    // });
+    // int greedy_dec_deg = nb_crossings(adj, greedy_sequential(adj));
+    // // std::cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
+
+    // // Sort by increasing max neighbor
     // std::sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //    if (a.empty() || b.empty()) {
     //         return a.size() < b.size();
@@ -63,15 +124,17 @@ int main(int argc, char* argv[]) {
     //     }
     // });
     // std::vector<int> posGIMX = greedy_sequential(adj);
-    // std::cout << nb_crossings(adj, posGIMX) << "\n";
-    // std::vector<int> orderGIMX(posGIMX.size());
-    // for (int i = 0; i < posGIMX.size(); i++) {
-    //     orderGIMX[posGIMX[i]] = i ;
-    // }
-    // std::cout << nb_crossings_from_order(adj, orderGIMX) << "\n";
+    // int greedy_inc_max_neighbor = nb_crossings(adj, greedy_sequential(adj));
+    // // std::cout << "greedy increasing max neighbor: " << greedy_inc_max_neighbor  << "\n";
+    
+    // // std::vector<int> orderGIMX(posGIMX.size());
+    // // for (int i = 0; i < posGIMX.size(); i++) {
+    // //     orderGIMX[posGIMX[i]] = i ;
+    // // }
+    // // std::cout << nb_crossings_from_order(adj, orderGIMX) << "\n";
     // // print(orderGIMX);
 
-    //  // sort by decreasing max neighbor
+    //  // Sort by decreasing max neighbor
     // std::sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //    if (a.empty() || b.empty()) {
     //         return a.size() < b.size();
@@ -79,13 +142,11 @@ int main(int argc, char* argv[]) {
     //         return *std::max_element(a.begin(), a.end()) > *std::max_element(b.begin(), b.end());
     //     }
     // });
-    // std::cout << nb_crossings(adj, greedy_sequential(adj)) << " ";
-
+    // int greedy_dec_max_neighbor = nb_crossings(adj, greedy_sequential(adj));
+    // // std::cout <<  "greedy decreasing max neighbor: " << greedy_dec_max_neighbor << "\n";
    
+    // std::cout << lower_bound(adj) << " " << greedy_nat << " " << greedy_inc_deg << " " << greedy_dec_deg << " " << greedy_inc_max_neighbor << " " << greedy_dec_max_neighbor << "\n";
 
-    // std::cout << "\n";
-
-    return 0;
 }
 
 
