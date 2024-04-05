@@ -6,9 +6,12 @@
 #include <algorithm> 
 #include <cstdlib>
 #include <ctime> 
+#include <list>
+#include <random>
 
+using namespace std;
 using std::vector;
-
+using std::list;
 
 /**
  * 
@@ -335,3 +338,147 @@ void print_gr_format(vector<vector<int>> adj){
     }
 }
 
+
+int pair_diff(const vector<int>& adji, const vector<int>& adjj){
+    std::pair<int,int> r = crossings_between_pair(adji, adjj);
+    return r.first - r.second;
+}
+
+
+
+
+/**
+ * @brief Greedy search of disjoint triangles.
+ * 
+ * @param adj 
+ * @return list<vector<int>> lists of triangles [i,j,k,w] where i,j and k are the vertices, w the weight
+ */
+list<vector<int>> find_disjoint_3cycles(const vector<vector<int>>& adj){
+    vector<bool> used(adj.size(), false); // Set to keep track of vertices used in cycles
+    // int total = 0; // sum of the minimum of the minimum weight of the cycles
+    list<vector<int>> cycles;  // cycle[z] = [i,j,k,w] where i,j and k are the vertices, w the weight
+
+    for (int i = 0; i< adj.size(); ++i){
+        if (used[i]) continue;
+
+        for (int j = i+1; j < adj.size(); ++j){
+            if (used[i]) break;
+            if (used[j]) continue;
+
+            int rij = pair_diff(adj[i], adj[j]);
+            for (int k = j+1; k < adj.size(); ++k){
+                if (used[i]) break;
+                if (used[j]) break;
+                if (used[k]) continue;
+
+                int rjk = pair_diff(adj[j], adj[k]);
+                int rki = pair_diff(adj[k], adj[i]);
+
+                if (rij > 0 && rjk > 0 && rki > 0){
+                    int min = rij < rjk ? rij : rjk;
+                    min = min < rki ? min : rki;
+                    // std::cout << i << " " << j << " " << k  << " " << min << "\n";
+                    // total += min;
+                    used[i] = true;
+                    used[j] = true;
+                    used[k] = true;
+                    cycles.push_back( {i,j,k, min});
+
+                } else if (rij < 0 && rjk < 0 && rki < 0){
+                    int max = rij > rjk ? rij : rjk;
+                    max = max > rki ? max : rki;
+                    max = max < 0 ? -max : max;
+                    // std::cout << i << " " << j << " " << k << " " << max << "\n";
+                    // total += max;
+                    used[i] = true;
+                    used[j] = true;
+                    used[k] = true;
+                    cycles.push_back( {i,j,k, max});
+                }
+            }
+        }
+    }
+    return cycles;
+}
+
+
+/**
+ * @brief 0 if not a triange
+ * otherwise > 0 the min of the weights of the arcs
+ * 
+ * @param adj 
+ * @param i 
+ * @param j 
+ * @param k 
+ * @return int 
+ */
+int is_triangle(const vector<vector<int>>& adj, int i, int j, int k){
+    int rij = pair_diff(adj[i], adj[j]);
+    int rjk = pair_diff(adj[j], adj[k]);
+    int rki = pair_diff(adj[k], adj[i]);
+    if (rij > 0 && rjk > 0 && rki > 0){
+        int min = rij < rjk ? rij : rjk;
+        min = min < rki ? min : rki;
+        return min;
+    } else if (rij < 0 && rjk < 0 && rki < 0){
+        int max = rij > rjk ? rij : rjk;
+        max = max > rki ? max : rki;
+        max = max < 0 ? -max : max;
+        return max;
+    }
+    return 0;
+}
+
+
+
+/**
+ * @brief Take randomly three vertices and check if it is a triangle.
+ * Repeat m times.
+ * This algorithm is very bad.
+ * 
+ * 
+ * @param adj 
+ * @param m 
+ * @return list<vector<int>> 
+ */
+list<vector<int>> find_random_disjoint_triangles(const vector<vector<int>>& adj, long m){
+    vector<int> available(adj.size());
+    for (int i =0; i < adj.size(); ++i) {
+        available[i] = i;
+    } 
+    list<vector<int>> triangles;  
+    random_device rd;
+    mt19937 gen(rd());
+
+    for (long i = 0; i < m; ++i) {
+        int r1 = gen() % adj.size();
+        int r2 = gen() % adj.size();
+        int r3 = gen() % adj.size();
+        if (r2 == r1 || r3 == r1 || r3 == r2) continue;
+
+        if (r1 > r2) {
+            swap(r1, r2);
+        }
+        if (r1 > r3) {
+            swap(r1, r3);
+        }
+        if (r2 > r3) {
+            swap(r2, r3);
+        }
+
+        int v1 = available[r1];
+        int v2 = available[r2];
+        int v3 = available[r3];
+
+        int r = is_triangle(adj, v1, v2, v3);
+        // cout << v1 << " " << v2 << " " << v3 << " " << r << endl;
+        if (r > 0){
+            triangles.push_back({v1, v2, v3, r});
+            available.erase(available.begin() + r3);
+            available.erase(available.begin() + r2);
+            available.erase(available.begin() + r1);
+        }
+    }
+    
+    return triangles;
+}

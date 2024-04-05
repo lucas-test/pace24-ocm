@@ -2,7 +2,7 @@
 
 if [ "$#" -eq 0 ]; then
     echo "Error: No directory specified."
-    echo "Usage: ./all.sh <directory>"
+    echo "Usage: ./all.sh <directory> <timeout_duration>"
     exit 1
 fi
 
@@ -13,7 +13,7 @@ fi
 #     ./bin/main "$file" >> results.out
 # done
 
-timeout_duration=30
+timeout_duration=$2
 dir=$1
 for file in `ls "$dir" | sort -g`; do
     SECONDS=0

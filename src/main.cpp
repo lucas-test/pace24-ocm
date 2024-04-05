@@ -9,6 +9,7 @@
 #include "common.h"
 #include "solver1.h"
 
+using namespace std;
 using std::vector;
 
 void search_random(void);
@@ -35,7 +36,6 @@ int main(int argc, char* argv[]) {
 
 
     // Solver1 test
-    std::cout << "lower bound: " << lower_bound(adj) << "\n";
 
     // std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
 
@@ -62,9 +62,41 @@ int main(int argc, char* argv[]) {
     // });
     // print_adj(adj);
 
+    
+
+
+    // Try to find a better greedy insertion order by starting with the triangles
+    // Not so much better ... or not better
+    // int lb = lower_bound(adj);
+    // std::cout<< "lb: " << lb << "\n";
+    // std::cout << "greedy lol: " << nb_crossings(adj, greedy_sequential(adj))-lb << "\n";
+
+    // std::list<std::vector<int>> triangles = find_disjoint_3cycles(adj);
+    // std::cout << "nb triangles: " << triangles.size() << "\n";
+
+    // std::vector<std::vector<int>> adj2;
+    // std::vector<int> seen(adj.size(), false);
+    // for (const auto& triangle : triangles){
+    //     adj2.push_back(adj[triangle[0]]);
+    //     adj2.push_back(adj[triangle[1]]);
+    //     adj2.push_back(adj[triangle[2]]);
+    //     seen[triangle[0]] = true;
+    //     seen[triangle[1]] = true;
+    //     seen[triangle[2]] = true;
+    // }
+    // for (int i = 0; i < seen.size(); ++i){
+    //     if (seen[i] == false){
+    //         adj2.push_back(adj[i]);
+    //     }
+    // }
+
+    // int greedy_inc_deg = nb_crossings(adj2, greedy_sequential(adj2));
+    // std::cout << "greedy lol: " << greedy_inc_deg-lb << "\n";
+
+
+
     solver1(adj);
 
-        // std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
 
 
 
@@ -151,7 +183,7 @@ void compare_greedy_insertion_orders(const vector<vector<int>>& adj){
 
 
 /**
- * @brief for finding a hard configuration with not that much vertices: it should be done in some seconds by solver1
+ * @brief for finding a complicated graphs with not that much vertices: it should be done in some seconds by solver1
  * 
  */
 void search_random(void){
