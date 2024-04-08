@@ -1,173 +1,123 @@
 
 graphs/exact/1.gr
-nb vertices: 743
 lower bound: 1482
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 1.gr took 0 seconds.
 
 graphs/exact/2.gr
-nb vertices: 1542
 lower bound: 3080
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 2.gr took 0 seconds.
 
 graphs/exact/3.gr
-nb vertices: 3162
 lower bound: 6320
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 3.gr took 0 seconds.
 
 graphs/exact/4.gr
-nb vertices: 3242
 lower bound: 6480
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 4.gr took 0 seconds.
 
 graphs/exact/5.gr
-nb vertices: 4853
 lower bound: 9702
 greedy bad crossings: 0
 min bad crossings: 0
-Execution of ./bin/main for 5.gr took 1 seconds.
+Execution of ./bin/main for 5.gr took 0 seconds.
 
 graphs/exact/6.gr
-nb vertices: 5997
 lower bound: 11990
 greedy bad crossings: 0
 min bad crossings: 0
-Execution of ./bin/main for 6.gr took 0 seconds.
+Execution of ./bin/main for 6.gr took 1 seconds.
 
 graphs/exact/7.gr
-nb vertices: 7262
 lower bound: 14520
 greedy bad crossings: 0
 min bad crossings: 0
-Execution of ./bin/main for 7.gr took 1 seconds.
+Execution of ./bin/main for 7.gr took 0 seconds.
 
 graphs/exact/8.gr
-nb vertices: 8130
 lower bound: 16256
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 8.gr took 1 seconds.
 
 graphs/exact/9.gr
-nb vertices: 9872
 lower bound: 19740
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 9.gr took 1 seconds.
 
 graphs/exact/10.gr
-nb vertices: 8064
 lower bound: 16555
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 10.gr took 1 seconds.
 
 graphs/exact/11.gr
-nb vertices: 10016
 lower bound: 20089
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 11.gr took 1 seconds.
 
 graphs/exact/12.gr
-nb vertices: 586
 lower bound: 829
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 12.gr took 0 seconds.
 
 graphs/exact/13.gr
-nb vertices: 570
 lower bound: 2744
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 13.gr took 0 seconds.
 
 graphs/exact/14.gr
-nb vertices: 2161
 lower bound: 5316
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 14.gr took 0 seconds.
 
 graphs/exact/15.gr
-nb vertices: 3591
 lower bound: 9500
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 15.gr took 0 seconds.
 
 graphs/exact/16.gr
-nb vertices: 5352
 lower bound: 11068
 greedy bad crossings: 0
 min bad crossings: 0
-Execution of ./bin/main for 16.gr took 1 seconds.
+Execution of ./bin/main for 16.gr took 0 seconds.
 
 graphs/exact/17.gr
-nb vertices: 16148
 lower bound: 33251
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 17.gr took 3 seconds.
 
 graphs/exact/18.gr
-nb vertices: 342
 lower bound: 11836
 greedy bad crossings: 43
 triangles: 1 total: 1
 better 11
 better 9
+better 7
 better 5
 min bad crossings: 5
 min crossings: 11841
 Execution of ./bin/main for 18.gr took 1 seconds.
 
 graphs/exact/19.gr
-nb vertices: 394
-lower bound: 18092
-greedy bad crossings: 78
-triangles: 1 total: 1
-better 56
-better 12
-min bad crossings: 12
-min crossings: 18104
-Execution of ./bin/main for 19.gr took 0 seconds.
 
 graphs/exact/20.gr
-nb vertices: 407
-lower bound: 14884
-greedy bad crossings: 94
-triangles: 3 total: 3
-better 72
-better 61
-better 59
-better 57
-better 53
-better 52
-better 41
-better 39
-better 37
-better 35
-better 33
-better 31
-better 27
-better 23
-better 19
-better 13
-min bad crossings: 13
-min crossings: 14897
-Execution of ./bin/main for 20.gr took 13 seconds.
 
 graphs/exact/21.gr
-nb vertices: 271
 lower bound: 5174
 greedy bad crossings: 8
 triangles: 1 total: 1
@@ -179,18 +129,19 @@ min crossings: 5176
 Execution of ./bin/main for 21.gr took 0 seconds.
 
 graphs/exact/22.gr
-nb vertices: 338
 lower bound: 6769
 greedy bad crossings: 13
 triangles: 4 total: 4
 better 12
 better 11
-min bad crossings: 11
-min crossings: 6780
+better 10
+better 9
+better 8
+min bad crossings: 8
+min crossings: 6777
 Execution of ./bin/main for 22.gr took 0 seconds.
 
 graphs/exact/23.gr
-nb vertices: 447
 lower bound: 8577
 greedy bad crossings: 19
 triangles: 10 total: 10
@@ -202,42 +153,26 @@ better 14
 better 13
 min bad crossings: 13
 min crossings: 8590
-Execution of ./bin/main for 23.gr took 1 seconds.
+Execution of ./bin/main for 23.gr took 0 seconds.
 
 graphs/exact/24.gr
-nb vertices: 433
 lower bound: 7675
 greedy bad crossings: 18
 triangles: 5 total: 5
 better 17
+better 16
 better 15
+better 14
 better 13
+better 12
 better 11
 min bad crossings: 11
 min crossings: 7686
-Execution of ./bin/main for 24.gr took 0 seconds.
+Execution of ./bin/main for 24.gr took 1 seconds.
 
 graphs/exact/25.gr
-nb vertices: 451
-lower bound: 8124
-greedy bad crossings: 25
-triangles: 8 total: 8
-better 24
-better 23
-better 22
-better 21
-better 20
-better 19
-better 18
-better 17
-better 16
-better 15
-min bad crossings: 15
-min crossings: 8139
-Execution of ./bin/main for 25.gr took 4 seconds.
 
 graphs/exact/26.gr
-nb vertices: 517
 lower bound: 10860
 greedy bad crossings: 23
 triangles: 8 total: 9
@@ -250,34 +185,30 @@ min crossings: 10879
 Execution of ./bin/main for 26.gr took 7 seconds.
 
 graphs/exact/27.gr
-nb vertices: 693
 lower bound: 3230
 greedy bad crossings: 4
 triangles: 0 total: 0
 better 0
 min bad crossings: 0
 min crossings: 3230
-Execution of ./bin/main for 27.gr took 1 seconds.
+Execution of ./bin/main for 27.gr took 2 seconds.
 
 graphs/exact/28.gr
-nb vertices: 755
 lower bound: 1559
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 28.gr took 0 seconds.
 
 graphs/exact/29.gr
-nb vertices: 816
 lower bound: 2776
 greedy bad crossings: 2
 triangles: 0 total: 0
 better 0
 min bad crossings: 0
 min crossings: 2776
-Execution of ./bin/main for 29.gr took 3 seconds.
+Execution of ./bin/main for 29.gr took 2 seconds.
 
 graphs/exact/30.gr
-nb vertices: 986
 lower bound: 15024
 greedy bad crossings: 0
 min bad crossings: 0
@@ -332,21 +263,18 @@ graphs/exact/53.gr
 graphs/exact/54.gr
 
 graphs/exact/55.gr
-nb vertices: 632
 lower bound: 82205
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 55.gr took 0 seconds.
 
 graphs/exact/56.gr
-nb vertices: 693
 lower bound: 100013
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 56.gr took 0 seconds.
 
 graphs/exact/57.gr
-nb vertices: 723
 lower bound: 173013
 greedy bad crossings: 0
 min bad crossings: 0
@@ -377,21 +305,18 @@ graphs/exact/68.gr
 graphs/exact/69.gr
 
 graphs/exact/70.gr
-nb vertices: 584
 lower bound: 117037
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 70.gr took 0 seconds.
 
 graphs/exact/71.gr
-nb vertices: 652
 lower bound: 132493
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 71.gr took 0 seconds.
 
 graphs/exact/72.gr
-nb vertices: 736
 lower bound: 176033
 greedy bad crossings: 0
 min bad crossings: 0
@@ -418,61 +343,55 @@ graphs/exact/81.gr
 graphs/exact/82.gr
 
 graphs/exact/83.gr
-nb vertices: 228
 lower bound: 125090
 greedy bad crossings: 23
 triangles: 3 total: 5
 better 15
-min bad crossings: 15
-min crossings: 125105
+better 13
+better 9
+min bad crossings: 9
+min crossings: 125099
 Execution of ./bin/main for 83.gr took 0 seconds.
 
 graphs/exact/84.gr
 
 graphs/exact/85.gr
-nb vertices: 430
 lower bound: 92759
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 85.gr took 0 seconds.
 
 graphs/exact/86.gr
-nb vertices: 624
 lower bound: 200617
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 86.gr took 0 seconds.
 
 graphs/exact/87.gr
-nb vertices: 684
 lower bound: 236782
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 87.gr took 0 seconds.
 
 graphs/exact/88.gr
-nb vertices: 686
 lower bound: 241803
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 88.gr took 0 seconds.
 
 graphs/exact/89.gr
-nb vertices: 704
 lower bound: 236418
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 89.gr took 0 seconds.
 
 graphs/exact/90.gr
-nb vertices: 714
 lower bound: 257813
 greedy bad crossings: 0
 min bad crossings: 0
 Execution of ./bin/main for 90.gr took 0 seconds.
 
 graphs/exact/91.gr
-nb vertices: 738
 lower bound: 268908
 greedy bad crossings: 0
 min bad crossings: 0
@@ -495,7 +414,6 @@ graphs/exact/98.gr
 graphs/exact/99.gr
 
 graphs/exact/100.gr
-nb vertices: 828
 lower bound: 346841
 greedy bad crossings: 0
 min bad crossings: 0

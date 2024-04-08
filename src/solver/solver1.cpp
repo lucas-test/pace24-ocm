@@ -184,10 +184,10 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
             // Compute a lower bound on the number of edges that will be crossed if to_do[i] is chosen
             int c = 0;
             for (int j = 0; j < i ; ++j){
-                if (adj[j].back() < adj[i][0]){
-                    c += adj[j].size();
-                } else if (adj[j].back() == adj[i][0] ) {
-                    c += adj[j].size()-1;
+                if (adj[to_do[j]].back() < adj[to_do[i]][0]){
+                    c += adj[to_do[j]].size();
+                } else if (adj[to_do[j]].back() == adj[to_do[i]][0] ) {
+                    c += adj[to_do[j]].size()-1;
                 } 
             }
             if (current_bad_cr + triangles_total + c >= best_bad_cr){ // Because triangles crossings are disjoint from the c crossings
