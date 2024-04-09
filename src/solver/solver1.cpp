@@ -8,8 +8,7 @@
 
 #include "common.h"
 
-using std::vector;
-using std::list;
+using namespace std;
 
 /*
     order: [0,3,1,2]
@@ -81,7 +80,7 @@ int lower_bound_pre_order(const vector<vector<int>>& adj, const vector<int>& pre
  * @param best_order 
  * @param best_order_nc 
  */
-void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order, vector<int>& best_order, int& best_bad_cr, int& current_bad_cr, list<vector<int>>& triangles, int& triangles_total ){
+void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order, vector<int>& best_order, int& best_bad_cr, int& current_bad_cr, vector<vector<int>>& triangles, int& triangles_total, const vector<vector<int>>& pair_crossings ){
 
 
     if (to_do.size() == 0){
@@ -94,11 +93,16 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
 
     } else {
 
+        if (current_bad_cr + triangles_total >= best_bad_cr){
+            return;
+        }
+
         // Search a source
         vector<int> is_source(to_do.size(), true);
         for (int i = 0; i < to_do.size(); ++i){
             if (is_source[i] == false) continue;
             int max_neighbor = adj[to_do[i]].back();
+            if (triangles[to_do[i]][2] > 0) continue;
             bool no_more_source = false;
             for (int j = 0; j < to_do.size(); ++j){
                 if (j < i && adj[to_do[j]].back() < adj[to_do[i]][0]){
@@ -109,11 +113,13 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
                 if (j > i && adj[to_do[j]][0] >= max_neighbor){
                     break;
                 }
-                std::pair<int, int> r = crossings_between_pair(adj[to_do[i]], adj[to_do[j]]);
-                if (r.first < r.second){
+                // std::pair<int, int> r = crossings_between_pair(adj[to_do[i]], adj[to_do[j]]);
+                int rfirst = pair_crossings[to_do[i]][to_do[j]];
+                int rsecond = pair_crossings[to_do[j]][to_do[i]];
+                if (rfirst < rsecond){
                     is_source[i] = false;
                     break;
-                } else if (r.first > r.second){
+                } else if (rfirst > rsecond){
                     is_source[j] = false;
                 }
             }
@@ -125,116 +131,107 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
                 int x = to_do[i];
                 to_do.erase(to_do.begin() + i);
                 order.push_back(x);
-                aux(adj, to_do, order, best_order, best_bad_cr, current_bad_cr, triangles, triangles_total);
+                aux(adj, to_do, order, best_order, best_bad_cr, current_bad_cr, triangles, triangles_total, pair_crossings);
                 to_do.insert(to_do.begin() + i, x);
                 order.pop_back();
                 return;
             }
 
-            // Old version for finding a source
-            // Not so much bad
-
-            // bool is_source = true;
-
-            // for (int j = 0; j < i; ++j){
-            //     if (adj[to_do[j]].back() < adj[to_do[i]][0]){
-            //         is_source = false;
-            //         break;
-            //     }
-            // }
-            // if (is_source == false){
-            //     break;
-            // }
-
-            // int max_neighbor = adj[to_do[i]].back();
-            // for (int j = 0; j < to_do.size(); j++){
-            //     if ( j == i) continue;
-            //     if (j > i && adj[to_do[j]][0] >= max_neighbor){
-            //         break;
-            //     }
-            //     std::pair<int, int> r = crossings_between_pair(adj[to_do[i]], adj[to_do[j]]);
-            //     if (r.first < r.second){
-            //         is_source = false;
-            //         break;
-            //     }
-            // }
-
-            // if (is_source){
-            //     // std::cout << "todo[" << i << "] = " << to_do[i] << " is a source (degree=" << adj[to_do[i]].size() << "\n";
-            //     int x = to_do[i];
-            //     to_do.erase(to_do.begin() + i);
-            //     order.push_back(x);
-            //     aux(adj, to_do, order, best_order, best_bad_cr, current_bad_cr, triangles, triangles_total);
-            //     to_do.insert(to_do.begin() + i, x);
-            //     order.pop_back();
-            //     return;
-            // }
         }
         
 
-        if (current_bad_cr + triangles_total >= best_bad_cr){
-            return;
-        }
+        
 
 
         // Branch on to_do
         // std::cout << "branch " << to_do.size() << "\n";
-        for (int i = 0; i < to_do.size(); i ++){
+        for (int i = 0; i < to_do.size(); ++i){
+            int x = to_do[i];
            
             // Compute a lower bound on the number of edges that will be crossed if to_do[i] is chosen
             int c = 0;
             for (int j = 0; j < i ; ++j){
-                if (adj[to_do[j]].back() < adj[to_do[i]][0]){
+                if (adj[to_do[j]].back() < adj[x][0]){
                     c += adj[to_do[j]].size();
-                } else if (adj[to_do[j]].back() == adj[to_do[i]][0] ) {
+                } else if (adj[to_do[j]].back() == adj[x][0] ) {
                     c += adj[to_do[j]].size()-1;
                 } 
             }
-            if (current_bad_cr + triangles_total + c >= best_bad_cr){ // Because triangles crossings are disjoint from the c crossings
+            int mind = adj[x].size();
+            for (int j = i+1; j < to_do.size(); ++j){
+                if (adj[to_do[j]].size() < mind){
+                    mind = adj[to_do[j]].size();
+                }
+            }
+            if (current_bad_cr + triangles_total + c*mind >= best_bad_cr){ // Because triangles crossings are disjoint from the c crossings
                 break;
             }
 
             int new_current_bad_cr = current_bad_cr;
             for (int j=0; j < to_do.size(); j ++){
-                if (adj[to_do[i]].back() <= adj[to_do[j]][0]){
+                if (adj[x].back() <= adj[to_do[j]][0]){
                     break;
                 }
                 if (j != i){
-                    std::pair<int, int> r = crossings_between_pair(adj[to_do[i]], adj[to_do[j]]);
-                    int diff = -(r.first - r.second);
+                    // std::pair<int, int> r = crossings_between_pair(adj[x], adj[to_do[j]]);
+                    int rfirst = pair_crossings[x][to_do[j]];
+                    int rsecond = pair_crossings[to_do[j]][x];
+                    int diff = -(rfirst - rsecond);
                     if (diff > 0){
                         new_current_bad_cr += diff;
                     }
                 }
             } 
 
-            int x = to_do[i];
+            if (new_current_bad_cr + triangles_total >= best_bad_cr){
+                continue;
+            }
+
 
             // Search for a triangle containing x
-            // If found triangle is not empty
-            vector<int> triangle;
-            std::list<std::vector<int>>::iterator triangle_it;
-            for (triangle_it = triangles.begin(); triangle_it != triangles.end(); ++triangle_it) {
-                if (x == (*triangle_it)[0] || x == (*triangle_it)[1] || x == (*triangle_it)[2]) {
-                    triangle = *triangle_it;
-                    break;
-                }
-            }
+            int x_triangle_weight = triangles[x][2];
+            int new_weight = 0;
+            int x2 = -1;
 
 
             to_do.erase(to_do.begin() + i);
             order.push_back(x);
-            if (triangle.size() > 0) {
-                triangles_total -= triangle[3];
-                triangles.erase(triangle_it); 
+            if (x_triangle_weight > 0){
+                triangles_total -= x_triangle_weight;
+                triangles[x][2] = 0;
+                int x0 = triangles[x][0];
+                int x1 = triangles[x][1];
+                triangles[x0][2] = 0;
+                triangles[x1][2] = 0;
+
+                vector<int> new_triangle = find_disjoint_triangle(pair_crossings, to_do, x0 , x1, triangles );
+                if (new_triangle[1] > 0){
+                    new_weight = new_triangle[1];
+                    x2 = new_triangle[0];
+                    triangles[x0] = {x1, x2, new_weight};
+                    triangles[x1] = {x0, x2, new_weight};
+                    triangles[x2] = {x0, x1, new_weight};
+                    triangles_total += new_weight;
+                    // cout << new_triangle[1] << endl;
+                }
             }
             
-            aux(adj, to_do, order, best_order, best_bad_cr, new_current_bad_cr, triangles, triangles_total);
+            aux(adj, to_do, order, best_order, best_bad_cr, new_current_bad_cr, triangles, triangles_total, pair_crossings);
 
-            if (triangle.size() > 0) {
-                triangles_total += triangle[3];
-                triangles.push_back(triangle); // No need to insert it at the same index
-                // triangle_it = triangles.insert(triangle_it, triangle); 
+            if (x_triangle_weight > 0){
+                triangles_total += x_triangle_weight;
+                triangles[x][2] = x_triangle_weight;
+                triangles[triangles[x][0]][2] = x_triangle_weight;
+                triangles[triangles[x][1]][2] = x_triangle_weight;
+
+                if (new_weight > 0){
+                    triangles_total -= new_weight;
+                    int x0 = triangles[x][0];
+                    int x1 = triangles[x][1];
+                    triangles[x0] = {x, x1,  x_triangle_weight};
+                    triangles[x1] = {x0, x,  x_triangle_weight};
+                    triangles[x2] = {0,0,0};
+                }
             }
             to_do.insert(to_do.begin() + i, x);
             order.pop_back();
@@ -243,15 +240,26 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
 }
 
 int solver1(const vector<vector<int>>& adj) {
+    cout << "nb vertices: " << adj.size() << endl;
+
     vector<int> pos = greedy_sequential(adj);
     vector<int> best_order(pos.size());
-    for (int i = 0; i < pos.size(); i++) {
+    for (int i = 0; i < pos.size(); ++i) {
         best_order[pos[i]] = i ;
     }
 
     vector<int> to_do;
-    for (int i = 0; i < adj.size(); i ++){
+    for (int i = 0; i < adj.size(); ++i){
         to_do.push_back(i);
+    }
+
+    vector<vector<int>> pair_crossings(adj.size());
+    for (int i = 0; i < adj.size(); ++i){
+        vector<int> crossings_i(adj.size());
+        pair_crossings[i] = crossings_i;
+        for (int j = 0; j < adj.size(); ++j){
+            pair_crossings[i][j] = crossings_between_pair(adj[i], adj[j]).first;
+        }
     }
 
     // Sort to_do by increasing leftmost neighbor: adj[i][0]
@@ -286,16 +294,35 @@ int solver1(const vector<vector<int>>& adj) {
     int current_bad_cr = 0;
 
 
+    // Triangles
     list<vector<int>> triangles = find_disjoint_3cycles(adj);
     int triangles_total = 0;
     for (const auto& triangle: triangles){
         triangles_total += triangle[3];
     }
-    std::cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
+    cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
 
+    vector<vector<int>> triangles_adj(adj.size());
+    for (int i = 0; i < adj.size(); i ++){
+        triangles_adj[i] = {0,0,0};
+        for (const auto& triangle: triangles){
+            if (triangle[0] == i){
+                triangles_adj[i] = {triangle[1], triangle[2], triangle[3]};
+                break;
+            }
+            if (triangle[1] == i){
+                triangles_adj[i] = {triangle[0], triangle[2], triangle[3]};
+                break;
+            }
+            if (triangle[2] == i){
+                triangles_adj[i] = {triangle[0], triangle[1], triangle[3]};
+                break;
+            }
+        }
+    }
 
     vector<int> order;
-    aux(adj, to_do, order, best_order, best_bad_cr, current_bad_cr, triangles, triangles_total);
+    aux(adj, to_do, order, best_order, best_bad_cr, current_bad_cr, triangles_adj, triangles_total, pair_crossings);
 
     // Print best order found
     // print(best_order);

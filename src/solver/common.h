@@ -20,6 +20,7 @@ std::vector<std::vector<int>> generate_random_adj(int n, int n2, double p);
 void print_gr_format(std::vector<std::vector<int>> adj);
 std::list<std::vector<int>> find_disjoint_3cycles(const std::vector<std::vector<int>>& adj);
 std::list<std::vector<int>> find_random_disjoint_triangles(const std::vector<std::vector<int>>& adj, long m);
+std::vector<int> find_disjoint_triangle(const std::vector<std::vector<int>>& pair_crossings, const std::vector<int>& to_do, int i, int j, const std::vector<std::vector<int>>& triangles_adj );
 
 
 

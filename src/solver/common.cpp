@@ -402,6 +402,35 @@ list<vector<int>> find_disjoint_3cycles(const vector<vector<int>>& adj){
 }
 
 
+vector<int> find_disjoint_triangle(const vector<vector<int>>& pair_crossings, const vector<int>& to_do, int i, int j, const vector<vector<int>>& triangles_adj ){
+    if (pair_crossings[i][j] - pair_crossings[j][i] < 0){
+        swap(i,j);
+    }
+    int ij = pair_crossings[i][j] - pair_crossings[j][i]; // > 0
+    
+    int bestk = -1;
+    int bestw = 0;
+    for (int u = 0; u < to_do.size(); ++u){
+        int k = to_do[u];
+        if (triangles_adj[k][2] > 0) continue;
+        if (k == i || k == j) continue;
+
+        int ki = pair_crossings[k][i] - pair_crossings[i][k];
+        int jk = pair_crossings[j][k] - pair_crossings[k][j];
+        if (ki > 0 && jk > 0){
+            int minw = min({ij, jk, ki});
+            if (minw > bestw){
+                bestw = minw;
+                bestk = k;
+                if (bestw == ij) break;
+            }
+        }
+
+    }
+    return {bestk, bestw};
+
+}
+
 /**
  * @brief 0 if not a triange
  * otherwise > 0 the min of the weights of the arcs
@@ -481,4 +510,26 @@ list<vector<int>> find_random_disjoint_triangles(const vector<vector<int>>& adj,
     }
     
     return triangles;
+}
+
+
+
+/**
+ * @brief TODO !
+ * 
+ * @param adj 
+ * @return vector<vector<pair<int,int>>> 
+ */
+vector<vector<pair<int,int>>> compute_directed_graph(const vector<vector<int>>& adj){
+    vector<vector<pair<int,int>>> in_neighbors(adj.size());
+
+    for (int i = 0; i < adj.size(); ++i){
+        for (int j = 0; j < adj.size(); ++j){
+            int wij = pair_diff(adj[i], adj[j]);
+            if (wij < 0){
+                // TODO
+            }
+        }
+    }
+
 }
