@@ -8,9 +8,11 @@
 
 #include "common.h"
 #include "solver1.h"
+#include "solver1a.h"
+#include "solver1b.h"
+#include <unordered_set>
 
 using namespace std;
-using std::vector;
 
 void search_random(void);
 void compare_greedy_insertion_orders(const std::vector<std::vector<int>>& adj);
@@ -94,11 +96,86 @@ int main(int argc, char* argv[]) {
     // std::cout << "greedy lol: " << greedy_inc_deg-lb << "\n";
 
 
+    // auto digraph = compute_directed_graph(adj);
+    // auto compo = scc(digraph.second, digraph.first);
 
-    solver1(adj);
+    // print_adj(adj);
 
+    // for (int i = 0; i < digraph.first.size(); ++i){
+    //     if (digraph.first[i].size() == 0){
+    //         cout << i << " is source" << endl;
+    //     }
+    //     // cout << i << " <-:";
+    //     // for (int j = 0; j < digraph.first[i].size(); ++j){
+    //     //     cout << digraph.first[i][j] << " ";
+    //     // }
+    //     // cout << endl;
+    // }
 
+    // for (int i = 0; i < digraph.second.size(); ++i){
+    //     cout << i << " ->:";
+    //     for (int j = 0; j < digraph.second[i].size(); ++j){
+    //         cout << digraph.second[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
 
+    // for (int i = 0; i < compo.size(); ++i){
+    //     cout << i << ":";
+    //     for (int j = 0; j < compo[i].size(); ++j){
+    //         cout << compo[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+    solver1b(adj);
+
+    // vector<vector<int>> pair_crossings(adj.size());
+    // for (int i = 0; i < adj.size(); ++i){
+    //     vector<int> crossings_i(adj.size());
+    //     pair_crossings[i] = crossings_i;
+    //     for (int j = 0; j < adj.size(); ++j){
+    //         pair_crossings[i][j] = crossings_between_pair(adj[i], adj[j]).first;
+    //     }
+    // }
+
+    // auto digraph = compute_directed_graph(adj);
+    // vector<int> vertices;
+    // for (int i = 0; i < adj.size(); ++i){
+    //     vertices.push_back(i);
+    // }
+
+    // unordered_set<int> subvertices = {174,82,246,289,236,302,129,55,204,384,299,83,316,34,374,17,109,312,355,228,64,381,106,376,11,372,232};
+
+    // for (int i = 0; i < adj.size(); ++i){
+    //     if (subvertices.find(i) != subvertices.end()){
+    //         cout << i << " <- ";
+    //         for (int x: digraph.first[i]){
+    //             if (subvertices.find(x) != subvertices.end()){
+    //                 cout << x << " ";
+    //             }
+    //         }
+    //         cout << endl;
+    //         cout << i << " -> ";
+    //         for (int x: digraph.second[i]){
+    //             if (subvertices.find(x) != subvertices.end()){
+    //                 cout << x << " ";
+    //             }
+    //         }
+    //         cout << endl;
+    //     }
+    // }
+
+    // find_triangles_tree(pair_crossings, digraph.first, digraph.second, vertices);
+
+    // find_edge_disjoint_triangles(pair_crossings, digraph.first, digraph.second, vertices);
+
+    // list<vector<int>> triangles = find_disjoint_3cycles(adj);
+    // int triangles_total = 0;
+    // for (const auto& triangle: triangles){
+    //     triangles_total += triangle[3];
+    // }
+    // cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
 
     // // Sort by increasing degree
     // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {

@@ -18,24 +18,6 @@ using namespace std;
 
 #include <unordered_set>
 
-/**
- * @brief check for duplicates in a vector.
- * Just used to check if the vectors in the algorithm are ok.
- * 
- * @param numbers 
- * @return true 
- * @return false 
- */
-bool has_duplicates(const std::vector<int>& numbers) {
-    std::unordered_set<int> seen;
-    for (int number : numbers) {
-        if (seen.count(number) > 0) {
-            return true; // Duplicate found
-        }
-        seen.insert(number);
-    }
-    return false; // No duplicates found
-}
 
 
 
@@ -331,6 +313,11 @@ int solver1(const vector<vector<int>>& adj) {
     std::cout << "min bad crossings: " << best_bad_cr << "\n";
     std::cout << "min crossings: " << lb + best_bad_cr << "\n";
 
+    print(best_order);
+    cout << best_order.size() << endl;
+    cout << adj.size() << endl;
+    cout << has_duplicates(best_order) << endl;
+    cout << nb_crossings_from_order(adj, best_order) << endl;
 
     return best_order_nc;
 }

@@ -1,6 +1,6 @@
 # Pre-compiler and Compiler flags
-CXX_FLAGS := -Wall -Wextra -std=c++17 -ggdb -O3
-PRE_FLAGS := -MMD -MP
+CXX_FLAGS := -Wsign-compare -Wall -Wextra -std=c++17 -ggdb -O3 
+PRE_FLAGS := -MMD -MP 
 
 # Project directory structure
 BIN := bin

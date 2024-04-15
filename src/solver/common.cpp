@@ -8,10 +8,10 @@
 #include <ctime> 
 #include <list>
 #include <random>
+#include <stack>
+#include <unordered_set>
 
 using namespace std;
-using std::vector;
-using std::list;
 
 /**
  * 
@@ -306,7 +306,7 @@ vector<vector<int>> generate_random_adj(int n, int n2, double p){
                 adj[i].push_back(j);
             }
         }
-        std::sort(adj[i].begin(), adj[i].end());
+        sort(adj[i].begin(), adj[i].end());
     }
 
     return adj;
@@ -515,21 +515,386 @@ list<vector<int>> find_random_disjoint_triangles(const vector<vector<int>>& adj,
 
 
 /**
- * @brief TODO !
+ * @brief 
  * 
  * @param adj 
- * @return vector<vector<pair<int,int>>> 
+ * @return <in_neighbors, out_neighbors>
  */
-vector<vector<pair<int,int>>> compute_directed_graph(const vector<vector<int>>& adj){
-    vector<vector<pair<int,int>>> in_neighbors(adj.size());
-
+pair<vector<vector<int>>, vector<vector<int>>> compute_directed_graph(const vector<vector<int>>& adj){
+    vector<vector<int>> in_neighbors(adj.size());
+    vector<vector<int>> out_neighbors(adj.size());
     for (int i = 0; i < adj.size(); ++i){
-        for (int j = 0; j < adj.size(); ++j){
+        for (int j = 0; j < i; ++j){
+            if (i==j) continue;
             int wij = pair_diff(adj[i], adj[j]);
-            if (wij < 0){
-                // TODO
+            // cout << i << " "<< j << " " << wij << endl;
+            if (wij > 0){
+                out_neighbors[i].push_back(j);
+                in_neighbors[j].push_back(i);
+            } else if (wij < 0){
+                in_neighbors[i].push_back(j);
+                out_neighbors[j].push_back(i);
             }
         }
     }
+    return make_pair(in_neighbors, out_neighbors);
+}
 
+
+
+void visit (int cur, unordered_set<int>& visited,const vector<vector<int>>& out_neighbors, stack<int>& stack) {
+    if (visited.count(cur)) return;
+    visited.insert(cur);
+    for (const auto& neigh : out_neighbors[cur]) {
+        visit(neigh, visited, out_neighbors, stack);
+    }
+    stack.push(cur);
+}
+
+void assign (int cur, const vector<vector<int>>& in_neighbors, unordered_set<int>& assigned, vector<vector<int>>& scc) {
+    if (!assigned.count(cur)) {
+        assigned.insert(cur);
+        vector<int> rootStack;
+        if (!scc.empty()) {
+            rootStack = scc.back();
+            scc.pop_back();
+        }
+        rootStack.push_back(cur);
+        scc.push_back(rootStack);
+        for (const auto& neigh : in_neighbors[cur]) {
+            assign(neigh, in_neighbors, assigned, scc);
+        }
+    }
+}
+
+
+vector<vector<int>> scc(const vector<vector<int>>& out_neighbors, const vector<vector<int>>& in_neighbors) {
+    vector<vector<int>> scc; // Strongly Connected Components
+    stack<int> stack;
+    unordered_set<int> visited;
+
+    for (int i = 0; i < out_neighbors.size(); ++i) {
+        visit(i, visited, out_neighbors, stack);
+    }
+
+    unordered_set<int> assigned;
+
+    while (!stack.empty()) {
+        int stack_head = stack.top();
+        stack.pop();
+        if (!assigned.count(stack_head)) {
+            scc.push_back(vector<int>()); // The array to stock the new component
+            assign(stack_head, in_neighbors, assigned, scc);
+        }
+    }
+
+    return scc;
+    }
+
+
+
+void visit_mask (int cur, unordered_set<int>& visited,const vector<vector<int>>& out_neighbors, stack<int>& stack, const vector<bool>& mask) {
+    if (visited.count(cur)) return;
+    visited.insert(cur);
+    for (const auto& neigh : out_neighbors[cur]) {
+        if (mask[neigh])
+            visit_mask(neigh, visited, out_neighbors, stack, mask);
+    }
+    stack.push(cur);
+}
+
+void assign_mask (int cur, const vector<vector<int>>& in_neighbors, unordered_set<int>& assigned, vector<vector<int>>& scc, const vector<bool>& mask) {
+    if (!assigned.count(cur)) {
+        assigned.insert(cur);
+        vector<int> rootStack;
+        if (!scc.empty()) {
+            rootStack = scc.back();
+            scc.pop_back();
+        }
+        rootStack.push_back(cur);
+        scc.push_back(rootStack);
+        for (const auto& neigh : in_neighbors[cur]) {
+            if (mask[neigh])
+                assign_mask(neigh, in_neighbors, assigned, scc, mask);
+        }
+    }
+}
+
+
+vector<vector<int>> scc_mask(const vector<vector<int>>& out_neighbors, const vector<vector<int>>& in_neighbors, const vector<bool>& mask) {
+    vector<vector<int>> scc; // Strongly Connected Components
+    stack<int> stack;
+    unordered_set<int> visited;
+
+    for (int i = 0; i < out_neighbors.size(); ++i) {
+        if (mask[i])  visit_mask(i, visited, out_neighbors, stack, mask);
+    }
+
+    unordered_set<int> assigned;
+
+    while (!stack.empty()) {
+        int stack_head = stack.top();
+        stack.pop();
+        if (!assigned.count(stack_head)) {
+            scc.push_back(vector<int>()); // The array to stock the new component
+            assign_mask(stack_head, in_neighbors, assigned, scc, mask);
+        }
+    }
+
+    return scc;
+}
+
+
+vector<vector<int>> scc_sub_digraph(const vector<vector<int>>& out_neighbors, const vector<vector<int>>& in_neighbors, const vector<int>& sub_vertices) {
+    vector<vector<int>> scc; // Strongly Connected Components
+    stack<int> stack;
+    unordered_set<int> visited;
+
+    for (int i: sub_vertices) {
+        visit(i, visited, out_neighbors, stack);
+    }
+
+    unordered_set<int> assigned;
+
+    while (!stack.empty()) {
+        int stack_head = stack.top();
+        stack.pop();
+        if (!assigned.count(stack_head)) {
+            scc.push_back(vector<int>()); // The array to stock the new component
+            assign(stack_head, in_neighbors, assigned, scc);
+        }
+    }
+
+    return scc;
+}
+
+
+
+
+
+
+
+/**
+ * @brief check for duplicates in a vector.
+ * Just used to check if the vectors in the algorithm are ok.
+ * 
+ * @param numbers 
+ * @return true if has duplicates
+ * @return false 
+ */
+bool has_duplicates(const vector<int>& numbers) {
+    unordered_set<int> seen;
+    for (int number : numbers) {
+        if (seen.count(number) > 0) {
+            return true; // Duplicate found
+        }
+        seen.insert(number);
+    }
+    return false; // No duplicates found
+}
+
+
+
+
+
+int lower_bound_mask(const vector<vector<int>>& adj, const vector<vector<int>>& pair_crossings, const vector<int>& to_do){
+    int nb_crossings = 0;
+    for (int i = 0; i < to_do.size(); i ++){
+        for (int j = i+1; j < to_do.size(); j ++){
+            nb_crossings += min(pair_crossings[to_do[i]][to_do[j]], pair_crossings[to_do[j]][to_do[i]]);
+        }
+    }
+    return nb_crossings;
+}
+
+int nb_crossings_from_order2(const vector<vector<int>>& adj, const vector<int>& order, const vector<vector<int>>& pair_crossings) {
+    int n = order.size();
+    int nb_crossings = 0;
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            nb_crossings += pair_crossings[order[j]][order[i]];
+        }
+    }
+    return nb_crossings;
+}
+
+
+
+
+int find_disjoint_triangles(const vector<vector<int>>& adj, const vector<int>& to_do, const vector<vector<int>>& pair_crossings){
+    vector<bool> used(adj.size(), false); // Set to keep track of vertices used in cycles
+    int total = 0; // sum of the minimum of the minimum weight of the cycles
+
+    for (int i = 0; i< to_do.size(); ++i){
+        int x = to_do[i];
+        if (used[x]) continue;
+
+        for (int j = i+1; j < to_do.size(); ++j){
+            int y = to_do[j];
+            if (used[x]) break;
+            if (used[y]) continue;
+
+            int rij = pair_crossings[x][y] - pair_crossings[y][x];
+            for (int k = j+1; k < to_do.size(); ++k){
+                int z = to_do[k];
+                if (used[x]) break;
+                if (used[y]) break;
+                if (used[z]) continue;
+
+                int rjk = pair_crossings[y][z] - pair_crossings[z][y];
+                int rki = pair_crossings[z][x] - pair_crossings[x][z];
+
+                if (rij > 0 && rjk > 0 && rki > 0){
+                    int min = rij < rjk ? rij : rjk;
+                    min = min < rki ? min : rki;
+                    // std::cout << i << " " << j << " " << k  << " " << min << "\n";
+                    total += min;
+                    used[x] = true;
+                    used[y] = true;
+                    used[z] = true;
+                } else if (rij < 0 && rjk < 0 && rki < 0){
+                    int max = rij > rjk ? rij : rjk;
+                    max = max > rki ? max : rki;
+                    max = max < 0 ? -max : max;
+                    total += max;
+                    used[x] = true;
+                    used[y] = true;
+                    used[z] = true;
+                }
+            }
+        }
+    }
+    return total;
+}
+
+
+
+
+vector<int> order_greedy_sequential_mask3(const vector<vector<int>>& adj, const vector<int>& to_do, const vector<vector<int>>& pair_crossings) {
+    int n = adj.size();
+    vector<int> order;
+    for (int iId =0; iId < to_do.size(); iId++) {
+        int i = to_do[iId];
+        // if (mask[i] == false) continue;
+        int cr = 0;
+        int minCr = 0;
+        int minK = 0;
+        for (int k = 0; k < order.size(); k++) {
+            int j = order[k];
+            int iLeft = pair_crossings[j][i];
+            int iRight = pair_crossings[i][j];
+            // auto [iLeft, iRight] = crossings_between_pair(adj[j], adj[i]);
+            cr += iRight - iLeft;
+            if (cr < minCr) {
+                minCr = cr;
+                minK = k + 1;
+            }
+        }
+        order.insert(order.begin() + minK, i);
+    }
+    return order;
+}
+
+
+
+
+
+
+int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<vector<int>> in_neighbors, const vector<vector<int>> out_neighbors, const vector<int> vertices){
+    vector<bool> used(in_neighbors.size(), false);
+    int total = 0;
+    vector<vector<int>> triangles;
+
+    for (int v: vertices){
+        for (int w: in_neighbors[v]){
+            if (used[w]) continue;
+            for (int z: out_neighbors[v]){
+                if (used[z]) continue;
+                auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), w);
+                if (it != out_neighbors[z].end() ){
+                    // triangle (vzw)
+                    used[v] = true;
+                    used[z] = true;
+                    used[w] = true;
+                    // triangles.push_back({v,z,w});
+                    int wv = pair_crossings[w][v] - pair_crossings[v][w];
+                    int vz = pair_crossings[v][z] - pair_crossings[z][v];
+                    int zw = pair_crossings[z][w] - pair_crossings[w][z];
+                    int weight = min(min(wv, vz),zw);
+                    total += weight;
+                    break;
+                }
+            }
+        }
+    }
+    cout << "triangles: " << triangles.size() << " " << total << endl;
+    return total;
+}
+
+
+int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
+    vector<vector<bool>> used(in_neighbors.size());
+    for (int i; i < used.size(); ++i){
+        used[i] = vector<bool>(in_neighbors.size(), false);
+    }
+    int total = 0;
+    // vector<vector<int>> triangles;
+
+    for (const int& x: vertices){
+        for (const int& y: in_neighbors[x]){
+            if (used[x][y]) continue;
+            for (const int& z: out_neighbors[x]){
+                if (used[x][z] || used[y][z]) continue;
+                auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
+                if (it != out_neighbors[z].end() ){
+                    // triangle (xzy)
+                    used[x][y] = true;
+                    used[y][x] = true;
+                    used[x][z] = true;
+                    used[z][x] = true;
+                    used[z][y] = true;
+                    used[y][z] = true;
+                    
+                    // triangles.push_back({x,z,y});
+                    int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                    int weight = min(min(yx, xz),zy);
+                    total += weight;
+                    break;
+                }
+
+                // Search for 4-cycles
+                
+                // if (used[x][y] || used[x][z]) continue;
+                
+                // for (const int& w: out_neighbors[z]){
+                //     if (used[z][w] || used[y][w]) continue;
+                //      auto it = find(out_neighbors[w].begin(), out_neighbors[w].end(), y);
+                //     if (it != out_neighbors[w].end() ){
+                //         used[x][y] = true;
+                //         used[y][x] = true;
+                //         used[x][z] = true;
+                //         used[z][x] = true;
+                //         used[z][w] = true;
+                //         used[w][z] = true;
+                //         used[w][y] = true;
+                //         used[y][w] = true;
+
+                //         // triangles.push_back({x,z,w,y});
+                //         int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                //         int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                //         int zw = pair_crossings[z][w] - pair_crossings[w][z];
+                //         int wy = pair_crossings[w][y] - pair_crossings[y][w];
+                //         int weight = min(min(yx, xz),min(zw, wy));
+                //         total += weight;
+                //         break;
+                //     }
+                // }
+
+            }
+        }
+    }
+    // cout << "triangles: " << triangles.size() << " " << total << endl;
+    return total;
 }
