@@ -180,7 +180,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
                 for (int i = 0; i < best_order.size(); ++i){
                     if (rmask[best_order[i]]) rbest_order.push_back(best_order[i]);
                 }
-                int rbest_order_nc = nb_crossings_from_order2(adj, rbest_order, pair_crossings); // compute in greedy algo
+                int rbest_order_nc = nb_crossings_from_order2(rbest_order, pair_crossings); // compute in greedy algo
                 int lb = lower_bound_mask(adj, pair_crossings, compo[i]);
                 int rbest_bad_cr = rbest_order_nc - lb;
 

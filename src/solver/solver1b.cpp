@@ -25,9 +25,19 @@ using namespace std;
  * @param best_order 
  * @param best_order_nc 
  */
-void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order, vector<int>& best_order, int& best_bad_cr, int& current_bad_cr, const vector<vector<int>>& pair_crossings, const pair<vector<vector<int>>, const vector<vector<int>>>& digraph, vector<bool>& mask, int deep, 
- vector<vector<int>>& triangles_adj, int& triangles_total,
- const vector<bool>& excluded ){
+void aux1b(const vector<vector<int>>& adj, 
+    vector<int>& to_do, 
+    vector<int>& order, 
+    vector<int>& best_order, 
+    int& best_bad_cr, 
+    int& current_bad_cr, 
+    const vector<vector<int>>& pair_crossings, 
+    const pair<vector<vector<int>>, 
+    const vector<vector<int>>>& digraph, 
+    vector<bool>& mask, 
+    int deep, 
+    vector<vector<int>>& triangles_adj, int triangles_total,
+    const vector<bool>& excluded ){
 
 
     if (to_do.size() == 0){
@@ -40,14 +50,18 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
 
     } else {
 
+        vector<vector<int>> in_neighbors = digraph.first;
+        vector<vector<int>> out_neighbors = digraph.second;
+
+        triangles_total = to_do.size() >= 100 ? 0 : find_edge_disjoint_triangles(pair_crossings, in_neighbors, out_neighbors, to_do);
+
         // Cut with edge disjoint triangles
         if (current_bad_cr + triangles_total >= best_bad_cr){
             return;
         }
 
 
-        vector<vector<int>> in_neighbors = digraph.first; // do a copy, it is bad TODO
-        vector<vector<int>> out_neighbors = digraph.second;
+        
 
         // Cut with min_indegree
         int min_indegree = in_neighbors[to_do[0]].size();
@@ -61,15 +75,15 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
             return;
         }
 
-        vector<vector<int>> compo = scc_sub_digraph(digraph.second, digraph.first, to_do);
-
+        // vector<vector<int>> compo = scc_sub_digraph(digraph.second, digraph.first, to_do);
+        vector<pair<vector<int>,bool>> compo = scc_sub_digraph_with_sources(digraph.second, digraph.first, to_do);
 
         if (compo.size() >= 2){
 
             // Cut with number of components >= 3 (which have each one a cycle)
             int c3 = 0;
             for (int i = 0; i < compo.size(); ++i){
-                if (compo[i].size() >= 3){
+                if (compo[i].first.size() >= 3){
                     c3 ++;
                 }
             }
@@ -78,22 +92,22 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
             // Launch computation on each component
             vector<int> sub_order;
             for (int i = 0; i < compo.size(); ++i){
-                if (deep <= 5 && compo[i].size() >= 2 ) cout << string(deep, '-') << i << "/" << compo.size() << " size " << compo[i].size() <<  endl;
-                if (compo[i].size() == 1) {
-                    if (i == 0 && excluded[compo[i][0]]) return;
-                    sub_order.push_back(compo[i][0]);
+                // if (deep <= 5 && compo[i].first.size() >= 2 ) cout << string(deep, '-') << i << "/" << compo.size() << " size " << compo[i].first.size() <<  endl;
+                if (compo[i].first.size() == 1) {
+                    if (compo[i].second && excluded[compo[i].first[0]]) return;
+                    sub_order.push_back(compo[i].first[0]);
                     continue;
                 }
 
                 // tout recalculer
                 vector<bool> rmask(adj.size(), false);
-                for (int j =0; j < compo[i].size(); ++j){
-                    rmask[compo[i][j]] = true;
+                for (int j =0; j < compo[i].first.size(); ++j){
+                    rmask[compo[i].first[j]] = true;
                 }
 
 
                 // Sort for greedy insertion
-                sort(compo[i].begin(), compo[i].end(), [&adj](int a, int b) {
+                sort(compo[i].first.begin(), compo[i].first.end(), [&adj](int a, int b) {
                     return adj[a].size() > adj[b].size();
                 });
 
@@ -108,13 +122,13 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
                 for (int i = 0; i < best_order.size(); ++i){
                     if (rmask[best_order[i]]) rbest_order.push_back(best_order[i]);
                 }
-                int rbest_order_nc = nb_crossings_from_order2(adj, rbest_order, pair_crossings); // compute in greedy algo
-                int lb = lower_bound_mask(adj, pair_crossings, compo[i]);
+                int rbest_order_nc = nb_crossings_from_order2(rbest_order, pair_crossings); // compute in greedy algo
+                int lb = lower_bound_mask(adj, pair_crossings, compo[i].first);
                 int rbest_bad_cr = rbest_order_nc - lb;
 
                 // Recompute upper bound V1
-                vector<int> rbest_order2 = order_greedy_sequential_mask3(adj, compo[i], pair_crossings);
-                int rbest_order_nc2 = nb_crossings_from_order2(adj, rbest_order2, pair_crossings);
+                vector<int> rbest_order2 = order_greedy_sequential_mask3(adj, compo[i].first, pair_crossings);
+                int rbest_order_nc2 = nb_crossings_from_order2(rbest_order2, pair_crossings);
                 if (rbest_order_nc2 < rbest_order_nc) {
                     rbest_order = rbest_order2;
                     rbest_bad_cr = rbest_order_nc2 - lb;
@@ -145,7 +159,7 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
 
                     // Compute sub_digraph: filter neighbors to compo[i]
                     vector<vector<int>> sub_in_neighbors(in_neighbors.size());
-                    for (const int& v: compo[i]){
+                    for (const int& v: compo[i].first){
                         for (const int& w: in_neighbors[v]){
                             if (rmask[w]){
                                 sub_in_neighbors[v].push_back(w);
@@ -153,7 +167,7 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
                         }
                     }
                     vector<vector<int>> sub_out_neighbors(out_neighbors.size());
-                    for (const int& v: compo[i]){
+                    for (const int& v: compo[i].first){
                         for (const int& w: out_neighbors[v]){
                             if (rmask[w]){
                                 sub_out_neighbors[v].push_back(w);
@@ -179,13 +193,12 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
                     // compo_triangles_total /= 3;
 
                     // Recompute edge disjoint triangles
-                    compo_triangles_total = find_edge_disjoint_triangles(pair_crossings, sub_in_neighbors, sub_out_neighbors, compo[i]);
+                    // compo_triangles_total = find_edge_disjoint_cycles(pair_crossings, sub_in_neighbors, sub_out_neighbors, compo[i].first);
 
-                    // TODO IMPROVE: every source component has excluded (and not empty)
                     vector<bool> next_excluded(adj.size(), false);
-                    if (i == 0) next_excluded = excluded;
+                    if (compo[i].second) next_excluded = excluded;
 
-                    aux1b(adj, compo[i], rorder, rbest_order, rbest_bad_cr, rcurrent_bad_cr, pair_crossings,sub_digraph, rmask , deep+1, triangles_adj, compo_triangles_total, next_excluded);
+                    aux1b(adj, compo[i].first, rorder, rbest_order, rbest_bad_cr, rcurrent_bad_cr, pair_crossings,sub_digraph, rmask , deep+1, triangles_adj, 0, next_excluded);
                 }
 
                 // Update global current_bad_cr
@@ -194,7 +207,7 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
                 // Cut with the remaining number of components of size >= 3
                 int c3 = 0;
                 for (int j = i+1; j < compo.size(); ++j){
-                    if (compo[j].size() >= 3){
+                    if (compo[j].first.size() >= 3){
                         c3 ++;
                     }
                 }
@@ -223,10 +236,10 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
         //     return;
         // }
 
-        triangles_total = find_edge_disjoint_triangles(pair_crossings, in_neighbors, out_neighbors, to_do);
-        if (current_bad_cr + triangles_total >= best_bad_cr){
-            return;
-        }
+        // triangles_total = find_edge_disjoint_triangles(pair_crossings, in_neighbors, out_neighbors, to_do);
+        // if (current_bad_cr + triangles_total >= best_bad_cr){
+        //     return;
+        // }
 
         sort(to_do.begin(), to_do.end(), [&in_neighbors, &out_neighbors](int a, int b) {
             auto aindegree = in_neighbors[out_neighbors[a][0]].size();
@@ -339,7 +352,7 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
             }
 
             // Search for a triangle containing x
-            int x_triangle_weight = triangles_adj[x][2];
+            int x_triangle_weight = 0; // triangles_adj[x][2];
             int new_weight = 0;
             int x2 = -1;
 
@@ -370,10 +383,15 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
                 }
             }
 
-            triangles_total = find_edge_disjoint_triangles(pair_crossings, in_neighbors, out_neighbors, to_do);
+            // triangles_total = find_edge_disjoint_triangles(pair_crossings, in_neighbors, out_neighbors, to_do);
+            // int triangles_total2 = find_edge_disjoint_cycles(pair_crossings, in_neighbors, out_neighbors, to_do);
+
+            // if (new_current_bad_cr + triangles_total2 >= best_bad_cr && new_current_bad_cr + triangles_total < best_bad_cr){
+            //     cout << "btter cut " << triangles_total2 << " " << triangles_total << endl;
+            // }
 
 
-            aux1b(adj, to_do, order, best_order, best_bad_cr, new_current_bad_cr, pair_crossings, make_pair(in_neighbors, out_neighbors), mask, deep+1, triangles_adj, triangles_total, next_excluded);
+            aux1b(adj, to_do, order, best_order, best_bad_cr, new_current_bad_cr, pair_crossings, make_pair(in_neighbors, out_neighbors), mask, deep+1, triangles_adj, 0, next_excluded);
 
             if (x_triangle_weight > 0){
                 triangles_total += x_triangle_weight;
@@ -406,9 +424,12 @@ void aux1b(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& orde
     }
 }
 
-int solver1b(const vector<vector<int>>& adj) {
-    cout << "solver1b" << endl;
-    cout << "nb vertices: " << adj.size() << endl;
+int solver1b(const vector<vector<int>>& adj, bool verbose) {
+    if (verbose){
+        cout << "solver1b" << endl;
+        cout << "nb vertices: " << adj.size() << endl;
+    }
+   
 
     vector<int> pos = greedy_sequential(adj);
     vector<int> best_order(pos.size());
@@ -458,15 +479,22 @@ int solver1b(const vector<vector<int>>& adj) {
     });
 
     int lb = lower_bound(adj);
-    cout << "lower bound: " << lb << "\n";
+    if (verbose){
+        cout << "lower bound: " << lb << "\n";
+    }
 
     int best_order_nc = nb_crossings_from_order(adj, best_order);
     // cout << "greedy nb crossings: " << best_order_nc << "\n";
     int best_bad_cr = best_order_nc - lb;
-     cout << "greedy bad crossings: " << best_bad_cr << "\n";
+    //  cout << "greedy bad crossings: " << best_bad_cr << "\n";
 
     if (best_bad_cr == 0){
-        cout << "min bad crossings: " << best_bad_cr << "\n";
+        if (verbose){
+            cout << "min bad crossings: " << best_bad_cr << "\n";
+            cout << "min crossings: " << lb + best_bad_cr << "\n";
+        }   
+        
+
         return best_bad_cr;
     }
 
@@ -477,7 +505,9 @@ int solver1b(const vector<vector<int>>& adj) {
     for (const auto& triangle: triangles){
         triangles_total += triangle[3];
     }
-    cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
+    if (verbose){
+        cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
+    }
 
     vector<vector<int>> triangles_adj(adj.size());
     for (int i = 0; i < adj.size(); i ++){
@@ -508,17 +538,19 @@ int solver1b(const vector<vector<int>>& adj) {
     // Print best order found
     // print(best_order);
 
+    if (verbose){
+        cout << "min bad crossings: " << best_bad_cr << "\n";
+        cout << "min crossings: " << lb + best_bad_cr << "\n";
+    }
 
-    cout << "min bad crossings: " << best_bad_cr << "\n";
-    cout << "min crossings: " << lb + best_bad_cr << "\n";
 
     // Check solution
-    print(best_order);
-    cout << "best order size: " << best_order.size() << endl;
-    cout << "nb vertices: " << adj.size() << endl;
-    cout << "has duplicates? " << has_duplicates(best_order) << endl;
-    cout << nb_crossings_from_order(adj, best_order) << endl;
-    cout << nb_crossings_from_order(adj, best_order)-lb << endl;
+    // print(best_order);
+    // cout << "best order size: " << best_order.size() << endl;
+    // cout << "nb vertices: " << adj.size() << endl;
+    // cout << "has duplicates? " << has_duplicates(best_order) << endl;
+    // cout << nb_crossings_from_order(adj, best_order) << endl;
+    // cout << nb_crossings_from_order(adj, best_order)-lb << endl;
 
-    return best_order_nc;
+    return lb + best_bad_cr;
 }

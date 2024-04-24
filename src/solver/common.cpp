@@ -559,8 +559,8 @@ void assign (int cur, const vector<vector<int>>& in_neighbors, unordered_set<int
             rootStack = scc.back();
             scc.pop_back();
         }
-        rootStack.push_back(cur);
-        scc.push_back(rootStack);
+        rootStack.push_back(cur); 
+        scc.push_back(rootStack); // scc.back().push_back(cur) // en espérant que scc.back() soit pas une copie
         for (const auto& neigh : in_neighbors[cur]) {
             assign(neigh, in_neighbors, assigned, scc);
         }
@@ -590,6 +590,62 @@ vector<vector<int>> scc(const vector<vector<int>>& out_neighbors, const vector<v
 
     return scc;
     }
+
+
+/**
+ * @brief 
+ * 
+ * @param cur 
+ * @param in_neighbors 
+ * @param assigned 
+ * @param component 
+ * @return true if the component is a source
+ * @return false otherwise (there is an arc from a vertex not in the component to this component)
+ */
+bool assign2 (int cur, const vector<vector<int>>& in_neighbors, vector<bool>& assigned, vector<int>& component) {
+    if (assigned[cur] == false) {
+        assigned[cur] = true;
+        component.push_back(cur);
+        bool is_source = true;
+        for (const auto& neigh : in_neighbors[cur]) {
+            if (assigned[neigh] && find(component.begin(), component.end(), neigh) == component.end()){
+                is_source = false;
+            } else {
+                if (assign2(neigh, in_neighbors, assigned, component) == false){
+                    is_source = false;
+                }
+            }
+        }
+        return is_source;
+    }
+    return true;
+}
+
+
+vector<pair<vector<int>, bool>> scc_sub_digraph_with_sources(const vector<vector<int>>& out_neighbors, const vector<vector<int>>& in_neighbors, const vector<int>& sub_vertices) {
+    vector<pair<vector<int>,bool>> scc; // Strongly Connected Components
+    stack<int> stack;
+    unordered_set<int> visited;
+
+    for (const int& i: sub_vertices) {
+        visit(i, visited, out_neighbors, stack);
+    }
+
+    vector<bool> assigned(out_neighbors.size(), false);
+
+    while (!stack.empty()) {
+        int stack_head = stack.top();
+        stack.pop();
+        if (assigned[stack_head] == false) {
+            vector<int> component;
+            bool is_source = assign2(stack_head, in_neighbors, assigned, component);
+            scc.push_back(make_pair(component, is_source));
+        }
+    }
+
+    return scc;
+}
+
 
 
 
@@ -707,7 +763,7 @@ int lower_bound_mask(const vector<vector<int>>& adj, const vector<vector<int>>& 
     return nb_crossings;
 }
 
-int nb_crossings_from_order2(const vector<vector<int>>& adj, const vector<int>& order, const vector<vector<int>>& pair_crossings) {
+int nb_crossings_from_order2(const vector<int>& order, const vector<vector<int>>& pair_crossings) {
     int n = order.size();
     int nb_crossings = 0;
     for (int i = 0; i < n; ++i) {
@@ -799,7 +855,16 @@ vector<int> order_greedy_sequential_mask3(const vector<vector<int>>& adj, const 
 
 
 
-
+/**
+ * @brief useless, edge disjoint triangles is better
+ * a triangles tree is set of triangles which can only intersect in at most 1 vertex and the graph of the triangles should be acyclic (therefore a tree)
+ * 
+ * @param pair_crossings 
+ * @param in_neighbors 
+ * @param out_neighbors 
+ * @param vertices 
+ * @return int 
+ */
 int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<vector<int>> in_neighbors, const vector<vector<int>> out_neighbors, const vector<int> vertices){
     vector<bool> used(in_neighbors.size(), false);
     int total = 0;
@@ -832,19 +897,20 @@ int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<v
 }
 
 
+
 int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
     vector<vector<bool>> used(in_neighbors.size());
-    for (int i; i < used.size(); ++i){
+    for (int i= 0; i < used.size(); ++i){
         used[i] = vector<bool>(in_neighbors.size(), false);
     }
     int total = 0;
-    // vector<vector<int>> triangles;
+    vector<vector<int>> triangles;
 
     for (const int& x: vertices){
         for (const int& y: in_neighbors[x]){
             if (used[x][y]) continue;
             for (const int& z: out_neighbors[x]){
-                if (used[x][z] || used[y][z]) continue;
+                if (used[x][y] || used[x][z] || used[y][z]) continue;
                 auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
                 if (it != out_neighbors[z].end() ){
                     // triangle (xzy)
@@ -855,7 +921,45 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                     used[z][y] = true;
                     used[y][z] = true;
                     
-                    // triangles.push_back({x,z,y});
+                    triangles.push_back({x,z,y});
+                    int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                    int weight = min(min(yx, xz),zy);
+                    total += weight;
+                    break;
+                }
+            }
+        }
+    }
+    return total;
+}
+
+
+int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
+    vector<vector<bool>> used(in_neighbors.size());
+    for (int i= 0; i < used.size(); ++i){
+        used[i] = vector<bool>(in_neighbors.size(), false);
+    }
+    int total = 0;
+    vector<vector<int>> triangles;
+
+    for (const int& x: vertices){
+        for (const int& y: in_neighbors[x]){
+            if (used[x][y]) continue;
+            for (const int& z: out_neighbors[x]){
+                if (used[x][y] || used[x][z] || used[y][z]) continue;
+                auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
+                if (it != out_neighbors[z].end() ){
+                    // triangle (xzy)
+                    used[x][y] = true;
+                    used[y][x] = true;
+                    used[x][z] = true;
+                    used[z][x] = true;
+                    used[z][y] = true;
+                    used[y][z] = true;
+                    
+                    triangles.push_back({x,z,y});
                     int yx = pair_crossings[y][x] - pair_crossings[x][y];
                     int xz = pair_crossings[x][z] - pair_crossings[z][x];
                     int zy = pair_crossings[z][y] - pair_crossings[y][z];
@@ -865,36 +969,73 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                 }
 
                 // Search for 4-cycles
+                if (used[x][y]) break;
                 
-                // if (used[x][y] || used[x][z]) continue;
+                if (used[x][z]) continue;
                 
-                // for (const int& w: out_neighbors[z]){
-                //     if (used[z][w] || used[y][w]) continue;
-                //      auto it = find(out_neighbors[w].begin(), out_neighbors[w].end(), y);
-                //     if (it != out_neighbors[w].end() ){
-                //         used[x][y] = true;
-                //         used[y][x] = true;
-                //         used[x][z] = true;
-                //         used[z][x] = true;
-                //         used[z][w] = true;
-                //         used[w][z] = true;
-                //         used[w][y] = true;
-                //         used[y][w] = true;
+                for (const int& w: out_neighbors[z]){
+                    if (used[x][y] || used[x][z] || used[z][w] || used[y][w]
+                    || used[y][x] || used[z][x] ||used[w][z] || used[w][y]) continue;
+                    auto it = find(out_neighbors[w].begin(), out_neighbors[w].end(), y);
+                    if (it != out_neighbors[w].end() ){
+                        used[x][y] = true;
+                        used[y][x] = true;
+                        used[x][z] = true;
+                        used[z][x] = true;
+                        used[z][w] = true;
+                        used[w][z] = true;
+                        used[w][y] = true;
+                        used[y][w] = true;
 
-                //         // triangles.push_back({x,z,w,y});
-                //         int yx = pair_crossings[y][x] - pair_crossings[x][y];
-                //         int xz = pair_crossings[x][z] - pair_crossings[z][x];
-                //         int zw = pair_crossings[z][w] - pair_crossings[w][z];
-                //         int wy = pair_crossings[w][y] - pair_crossings[y][w];
-                //         int weight = min(min(yx, xz),min(zw, wy));
-                //         total += weight;
-                //         break;
-                //     }
-                // }
+                        triangles.push_back({x,z,w,y});
+                        int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                        int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                        int zw = pair_crossings[z][w] - pair_crossings[w][z];
+                        int wy = pair_crossings[w][y] - pair_crossings[y][w];
+                        int weight = min(min(yx, xz),min(zw, wy));
+                        total += weight;
+                        break;
+                    }
+                }
 
             }
         }
     }
+    // cout << "########" << endl;
+    // for (const vector<int>& triangle: triangles){
+    //     print(triangle);
+    // }
+
+    // Check if cycles are disjoint
+    // for (int i = 0; i < triangles.size(); ++i){
+    //     for (int j = 0; j < i; ++j){
+    //         for (int k = 0; k < triangles[i].size(); ++k){
+    //             for (int l = 0; l < triangles[j].size(); ++l){
+    //                 int kk = k+1 == triangles[i].size() ? 0 : k+1;
+    //                 int ll = l+1 == triangles[j].size() ? 0 : l+1;
+    //                 if (triangles[i][k] == triangles[j][l] && triangles[i][kk] == triangles[j][ll]){
+    //                     cout << "bug"<< endl;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     // cout << "triangles: " << triangles.size() << " " << total << endl;
     return total;
 }
+
+
+
+
+
+
+void to_dot(
+    const vector<vector<int>>& out_neighbors,
+    const vector<vector<int>>& pair_crossings
+    ) {
+        for (int i = 0; i < out_neighbors.size(); ++i){
+            for (const int& j: out_neighbors[i]){
+                cout << i << " -> " << j << " [label=]" << endl;
+            }
+        }
+    }

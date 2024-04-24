@@ -5,17 +5,18 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <unordered_set>
 
 #include "common.h"
 #include "solver1.h"
 #include "solver1a.h"
 #include "solver1b.h"
-#include <unordered_set>
+#include "solver_bruteforce.h"
 
 using namespace std;
 
 void search_random(void);
-void compare_greedy_insertion_orders(const std::vector<std::vector<int>>& adj);
+void compare_greedy_insertion_orders(const vector<vector<int>>& adj);
 
 
 int main(int argc, char* argv[]) {
@@ -24,42 +25,42 @@ int main(int argc, char* argv[]) {
 
 
     if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <filename>\n";
+        cerr << "Usage: " << argv[0] << " <filename>\n";
         return 1;
     }
 
-    std::cout << "\n" << argv[1] << std::endl;
+    cout << "\n" << argv[1] << endl;
 
 
     vector<vector<int>> adj = load_file(argv[1]);
 
     reduce_degree_0(adj);
-    // std::cout << adj.size() << "\n";
+    // cout << adj.size() << "\n";
 
 
     // Solver1 test
 
-    // std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
+    // cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
 
-    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //     return a.size() < b.size();
     // });
 
-    //     std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
+    //     cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
 
 
-    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //     return a.size() > b.size();
     // });
 
-    //     std::cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
+    //     cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
 
 
-    // std::sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //    if (a.empty() || b.empty()) {
     //         return a.size() < b.size();
     //     } else {
-    //         return *std::max_element(a.begin(), a.end()) > *std::max_element(b.begin(), b.end());
+    //         return *max_element(a.begin(), a.end()) > *max_element(b.begin(), b.end());
     //     }
     // });
     // print_adj(adj);
@@ -70,14 +71,14 @@ int main(int argc, char* argv[]) {
     // Try to find a better greedy insertion order by starting with the triangles
     // Not so much better ... or not better
     // int lb = lower_bound(adj);
-    // std::cout<< "lb: " << lb << "\n";
-    // std::cout << "greedy lol: " << nb_crossings(adj, greedy_sequential(adj))-lb << "\n";
+    // cout<< "lb: " << lb << "\n";
+    // cout << "greedy lol: " << nb_crossings(adj, greedy_sequential(adj))-lb << "\n";
 
-    // std::list<std::vector<int>> triangles = find_disjoint_3cycles(adj);
-    // std::cout << "nb triangles: " << triangles.size() << "\n";
+    // list<vector<int>> triangles = find_disjoint_3cycles(adj);
+    // cout << "nb triangles: " << triangles.size() << "\n";
 
-    // std::vector<std::vector<int>> adj2;
-    // std::vector<int> seen(adj.size(), false);
+    // vector<vector<int>> adj2;
+    // vector<int> seen(adj.size(), false);
     // for (const auto& triangle : triangles){
     //     adj2.push_back(adj[triangle[0]]);
     //     adj2.push_back(adj[triangle[1]]);
@@ -93,7 +94,7 @@ int main(int argc, char* argv[]) {
     // }
 
     // int greedy_inc_deg = nb_crossings(adj2, greedy_sequential(adj2));
-    // std::cout << "greedy lol: " << greedy_inc_deg-lb << "\n";
+    // cout << "greedy lol: " << greedy_inc_deg-lb << "\n";
 
 
     // auto digraph = compute_directed_graph(adj);
@@ -128,7 +129,15 @@ int main(int argc, char* argv[]) {
     //     cout << endl;
     // }
 
-    solver1b(adj);
+    // print_adj(adj);
+    // vector<int> pos = greedy_sequential(adj);
+    // cout << lower_bound(adj)  << " " << nb_crossings(adj, pos) << endl;
+
+    // cout << solver_bruteforce(adj, false) << endl;
+    // cout << endl;
+    cout << solver1b(adj, true) << endl;
+
+    // search_random();
 
     // vector<vector<int>> pair_crossings(adj.size());
     // for (int i = 0; i < adj.size(); ++i){
@@ -178,26 +187,26 @@ int main(int argc, char* argv[]) {
     // cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
 
     // // Sort by increasing degree
-    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //     return a.size() < b.size();
     // });
     // int greedy_inc_deg = nb_crossings(adj, greedy_sequential(adj));
-    // std::cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
+    // cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
 
     // // Sort by decreasing degree
-    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //     return a.size() > b.size();
     // });
     // vector<int> greedy_dec_deg_pos = greedy_sequential(adj);
     // int greedy_dec_deg = nb_crossings(adj, greedy_sequential(adj));
-    // std::cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
+    // cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
     
     // vector<int> greedy_dec_deg_order(greedy_dec_deg_pos.size());
     // for (int i = 0; i < greedy_dec_deg_pos.size(); i++) {
     //     greedy_dec_deg_order[greedy_dec_deg_pos[i]] = i ;
     // }
     // int greedy_dec_deg_order_nc = nb_crossings_from_order(adj, greedy_dec_deg_order);
-    // std::cout << "greedy decreasing degree order: " << greedy_dec_deg_order_nc << "\n";
+    // cout << "greedy decreasing degree order: " << greedy_dec_deg_order_nc << "\n";
 
 
     return 0;
@@ -208,53 +217,53 @@ void compare_greedy_insertion_orders(const vector<vector<int>>& adj){
 
     // // Natural
     // int greedy_nat = nb_crossings(adj, greedy_sequential(adj));
-    // // std::cout << "greedy: " << greedy_nat << "\n";
+    // // cout << "greedy: " << greedy_nat << "\n";
 
     // // Sort by increasing degree
-    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //     return a.size() < b.size();
     // });
     // int greedy_inc_deg = nb_crossings(adj, greedy_sequential(adj));
-    // // std::cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
+    // // cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
 
     // // Sort by decreasing degree
-    // std::sort(adj.begin(), adj.end(), [](const std::vector<int>& a, const std::vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //     return a.size() > b.size();
     // });
     // int greedy_dec_deg = nb_crossings(adj, greedy_sequential(adj));
-    // // std::cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
+    // // cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
 
     // // Sort by increasing max neighbor
-    // std::sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //    if (a.empty() || b.empty()) {
     //         return a.size() < b.size();
     //     } else {
-    //         return *std::max_element(a.begin(), a.end()) < *std::max_element(b.begin(), b.end());
+    //         return *max_element(a.begin(), a.end()) < *max_element(b.begin(), b.end());
     //     }
     // });
-    // std::vector<int> posGIMX = greedy_sequential(adj);
+    // vector<int> posGIMX = greedy_sequential(adj);
     // int greedy_inc_max_neighbor = nb_crossings(adj, greedy_sequential(adj));
-    // // std::cout << "greedy increasing max neighbor: " << greedy_inc_max_neighbor  << "\n";
+    // // cout << "greedy increasing max neighbor: " << greedy_inc_max_neighbor  << "\n";
     
-    // // std::vector<int> orderGIMX(posGIMX.size());
+    // // vector<int> orderGIMX(posGIMX.size());
     // // for (int i = 0; i < posGIMX.size(); i++) {
     // //     orderGIMX[posGIMX[i]] = i ;
     // // }
-    // // std::cout << nb_crossings_from_order(adj, orderGIMX) << "\n";
+    // // cout << nb_crossings_from_order(adj, orderGIMX) << "\n";
     // // print(orderGIMX);
 
     //  // Sort by decreasing max neighbor
-    // std::sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
     //    if (a.empty() || b.empty()) {
     //         return a.size() < b.size();
     //     } else {
-    //         return *std::max_element(a.begin(), a.end()) > *std::max_element(b.begin(), b.end());
+    //         return *max_element(a.begin(), a.end()) > *max_element(b.begin(), b.end());
     //     }
     // });
     // int greedy_dec_max_neighbor = nb_crossings(adj, greedy_sequential(adj));
-    // // std::cout <<  "greedy decreasing max neighbor: " << greedy_dec_max_neighbor << "\n";
+    // // cout <<  "greedy decreasing max neighbor: " << greedy_dec_max_neighbor << "\n";
    
-    // std::cout << lower_bound(adj) << " " << greedy_nat << " " << greedy_inc_deg << " " << greedy_dec_deg << " " << greedy_inc_max_neighbor << " " << greedy_dec_max_neighbor << "\n";
+    // cout << lower_bound(adj) << " " << greedy_nat << " " << greedy_inc_deg << " " << greedy_dec_deg << " " << greedy_inc_max_neighbor << " " << greedy_dec_max_neighbor << "\n";
 
 }
 
@@ -266,23 +275,38 @@ void compare_greedy_insertion_orders(const vector<vector<int>>& adj){
 void search_random(void){
     srand(static_cast<unsigned>(time(0)));
 
-    for (int i = 0; i < 10 ; i ++){
-        vector<vector<int>> adj = generate_random_adj(20, 20, 0.33);
+    for (int i = 0; i < 100000 ; i ++){
+
+        double randomValue = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+
+        vector<vector<int>> adj = generate_random_adj(11, 13 + (i % 30), 0.2 + ((double) (i % 10))/10.);
+        reduce_degree_0(adj);
         vector<int> pos = greedy_sequential(adj);
         if (lower_bound(adj) != nb_crossings(adj, pos)){
+            // cout << "try " << i << endl;
 
-            auto start = std::chrono::high_resolution_clock::now();
-            solver1(adj);
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = end - start;
+            auto start = chrono::high_resolution_clock::now();
+            int min_cr = solver1b(adj, false);
+            auto end = chrono::high_resolution_clock::now();
+            chrono::duration<double> elapsed = end - start;
 
             
-
-            if (elapsed.count() > 0.5){
-                print_adj(adj);
-                print_gr_format(adj);
-                std::cout << "Lower bound: " << lower_bound(adj) << "\n";
-                std::cout << "Execution time of solver1: " << elapsed.count() << " seconds\n";
+            // cout << elapsed.count() << endl;
+            if (elapsed.count() > 0.00002){
+                int min_cr_brute = solver_bruteforce(adj, false);
+                if (min_cr_brute != min_cr){
+                    cout << "------" << endl;
+                    cout << "bug: brute=" << min_cr_brute << " solver=" << min_cr << endl;
+                    cout << "p=" << randomValue << endl;
+                    print_adj(adj);
+                    print_gr_format(adj);
+                    cout << "Lower bound: " << lower_bound(adj) << "\n";
+                    cout << "Greedy crossings: " << nb_crossings(adj, pos) << endl;
+                    cout << "Execution time of solver1: " << elapsed.count() << " seconds\n";
+                } else {
+                    // cout << "ok " << lower_bound(adj) << " " << min_cr << " " << nb_crossings(adj, pos) << endl;
+                }
+               
             }
 
            

@@ -19,17 +19,11 @@
 38: ?
 39:
 
-find_triangles with pair_crossings OPT with precompute !attention! si nb_vertices >> 1000
 
-sources: avoir la lsite des in-neighbors
-update à chaque choice
+testeur, générateur, bruteforce complet
 
-to_do: en liste  CA A L AIR MAL PARTI
+next: on évite les triangles x y z où z->x avec un poids supérieur à x->y et y->z
 
-meilleurs triangles: par du greedy, ou de l'aléa
-
-des triangles accolés ?
+max flow circulation pour trouver un ensemble de cycles edge disjoint maximum
 
 greedy à partir de triangles ?
-
-quand on vire un triangle à cause d'un sommet, on peut rechercher un triangle pour les 2 sommets libéré
