@@ -1027,15 +1027,30 @@ int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const v
 
 
 
+vector<vector<int>> compute_pair_crossings(
+    const vector<vector<int>>& adj){
+        vector<vector<int>> pair_crossings(adj.size());
+        for (int i = 0; i < adj.size(); ++i){
+            vector<int> crossings_i(adj.size());
+            pair_crossings[i] = crossings_i;
+            for (int j = 0; j < adj.size(); ++j){
+                pair_crossings[i][j] = crossings_between_pair(adj[i], adj[j]).first;
+            }
+        }
+        return pair_crossings;
+    }
+
 
 
 void to_dot(
     const vector<vector<int>>& out_neighbors,
     const vector<vector<int>>& pair_crossings
     ) {
+        cout << "digraph G {" << endl;
         for (int i = 0; i < out_neighbors.size(); ++i){
             for (const int& j: out_neighbors[i]){
-                cout << i << " -> " << j << " [label=]" << endl;
+                printf("%d -> %d [label=%d];\n", i, j, pair_crossings[i][j] - pair_crossings[j][i]);
             }
         }
+        cout << "}" << endl;
     }

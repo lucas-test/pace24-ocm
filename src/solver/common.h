@@ -42,4 +42,12 @@ int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<v
 int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 
+vector<vector<int>> compute_pair_crossings(
+    const vector<vector<int>>& adj);
+
+void to_dot(
+    const vector<vector<int>>& out_neighbors,
+    const vector<vector<int>>& pair_crossings
+    );
+
 #endif 

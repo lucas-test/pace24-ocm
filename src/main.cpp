@@ -137,17 +137,13 @@ int main(int argc, char* argv[]) {
     // cout << endl;
     cout << solver1b(adj, true) << endl;
 
+    // auto pair_crossings = compute_pair_crossings(adj);
+    // auto digraph = compute_directed_graph(adj);
+    // to_dot(digraph.second, pair_crossings);
+
     // search_random();
 
-    // vector<vector<int>> pair_crossings(adj.size());
-    // for (int i = 0; i < adj.size(); ++i){
-    //     vector<int> crossings_i(adj.size());
-    //     pair_crossings[i] = crossings_i;
-    //     for (int j = 0; j < adj.size(); ++j){
-    //         pair_crossings[i][j] = crossings_between_pair(adj[i], adj[j]).first;
-    //     }
-    // }
-
+    // auto pair_crossings = compute_pair_crossings(adj);
     // auto digraph = compute_directed_graph(adj);
     // vector<int> vertices;
     // for (int i = 0; i < adj.size(); ++i){
