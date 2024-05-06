@@ -135,7 +135,13 @@ int main(int argc, char* argv[]) {
 
     // cout << solver_bruteforce(adj, false) << endl;
     // cout << endl;
+    // cout << solver1(adj) << endl;
     cout << solver1b(adj, true) << endl;
+    // cout << solver_bruteforce(adj, true) << endl;
+
+    // print_adj(adj);
+    // auto graph = compute_directed_graph(adj);
+    // to_dot(graph.second, compute_pair_crossings(adj));
 
     // auto pair_crossings = compute_pair_crossings(adj);
     // auto digraph = compute_directed_graph(adj);
@@ -275,7 +281,7 @@ void search_random(void){
 
         double randomValue = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
-        vector<vector<int>> adj = generate_random_adj(11, 13 + (i % 30), 0.2 + ((double) (i % 10))/10.);
+        vector<vector<int>> adj = generate_random_adj(10, 13 + (i % 30), 0.2 + ((double) (i % 10))/10.);
         reduce_degree_0(adj);
         vector<int> pos = greedy_sequential(adj);
         if (lower_bound(adj) != nb_crossings(adj, pos)){
@@ -289,7 +295,12 @@ void search_random(void){
             
             // cout << elapsed.count() << endl;
             if (elapsed.count() > 0.00002){
+                // auto start2 = chrono::high_resolution_clock::now();
                 int min_cr_brute = solver_bruteforce(adj, false);
+                // auto end2 = chrono::high_resolution_clock::now();
+                // chrono::duration<double> elapsed2 = end2 - start2;
+                // cout << elapsed2.count() << endl;
+
                 if (min_cr_brute != min_cr){
                     cout << "------" << endl;
                     cout << "bug: brute=" << min_cr_brute << " solver=" << min_cr << endl;

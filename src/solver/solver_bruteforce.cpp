@@ -18,6 +18,9 @@ int auxBF(
     ) {
         if (to_insert.size() == 0){
             int nb_cr = nb_crossings_from_order2(order, pair_crossings);
+            if (nb_cr <= 1223){
+                print(order);
+            }
             if (verbose){
                 print(order);
                 cout << nb_cr << endl;
@@ -28,9 +31,6 @@ int auxBF(
             int min_bad_cr = 100000;
 
             for (int i = 0; i < to_insert.size(); ++i){
-                if (to_insert.size() == 13){
-                    cout << i << endl;
-                }
                 int v = to_insert[i];
                 order.push_back(v);
                 to_insert.erase(to_insert.begin() + i);
@@ -50,7 +50,7 @@ int auxBF(
 
 int solver_bruteforce(const vector<vector<int>>& adj, const bool& verbose){
     if (verbose){
-        cout << "solver bruteforce" << endl;
+        cout << "# solver bruteforce" << endl;
         cout << "nb vertices: " << adj.size() << endl;
     }
    
@@ -75,6 +75,7 @@ int solver_bruteforce(const vector<vector<int>>& adj, const bool& verbose){
     int min_cr = auxBF(to_insert, order, pair_crossings, false);
 
     if (verbose){
+        print(order);
         cout << "min crossings: " << min_cr << endl;
     }
     return min_cr;

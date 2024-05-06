@@ -25,6 +25,10 @@ vector<int> order_greedy_sequential_mask3(const vector<vector<int>>& adj, const 
 void reduce_degree_0(vector<vector<int>>& adj);
 vector<vector<int>> generate_random_adj(int n, int n2, double p);
 void print_gr_format(vector<vector<int>> adj);
+void print_gr_format_sub(vector<vector<int>> adj, vector<int> vertices);
+
+
+
 list<vector<int>> find_disjoint_3cycles(const vector<vector<int>>& adj);
 list<vector<int>> find_random_disjoint_triangles(const vector<vector<int>>& adj, long m);
 vector<int> find_disjoint_triangle(const vector<vector<int>>& pair_crossings, const vector<int>& to_do, int i, int j, const vector<vector<int>>& triangles_adj );

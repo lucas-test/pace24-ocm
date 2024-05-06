@@ -64,6 +64,9 @@ int lower_bound_pre_order(const vector<vector<int>>& adj, const vector<int>& pre
  */
 void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order, vector<int>& best_order, int& best_bad_cr, int& current_bad_cr, vector<vector<int>>& triangles, int& triangles_total, const vector<vector<int>>& pair_crossings ){
 
+    // cout << "aux" << endl;
+    // print(to_do);
+    // print(order);
 
     if (to_do.size() == 0){
         // End of branch
@@ -76,6 +79,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
     } else {
 
         if (current_bad_cr + triangles_total >= best_bad_cr){
+            // cout << "cut " << current_bad_cr << " " << triangles_total << " " << best_bad_cr << endl;
             return;
         }
 
@@ -109,7 +113,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
             if (no_more_source) break;
 
             if (is_source[i]){
-                // std::cout << "todo[" << i << "] = " << to_do[i] << " is a source (degree=" << adj[to_do[i]].size() << "\n";
+                // cout << "todo[" << i << "] = " << to_do[i] << " is a source (degree=" << adj[to_do[i]].size() << "\n";
                 int x = to_do[i];
                 to_do.erase(to_do.begin() + i);
                 order.push_back(x);
@@ -129,25 +133,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
         // std::cout << "branch " << to_do.size() << "\n";
         for (int i = 0; i < to_do.size(); ++i){
             int x = to_do[i];
-           
-            // Compute a lower bound on the number of edges that will be crossed if to_do[i] is chosen
-            int c = 0;
-            for (int j = 0; j < i ; ++j){
-                if (adj[to_do[j]].back() < adj[x][0]){
-                    c += adj[to_do[j]].size();
-                } else if (adj[to_do[j]].back() == adj[x][0] ) {
-                    c += adj[to_do[j]].size()-1;
-                } 
-            }
-            int mind = adj[x].size();
-            for (int j = i+1; j < to_do.size(); ++j){
-                if (adj[to_do[j]].size() < mind){
-                    mind = adj[to_do[j]].size();
-                }
-            }
-            if (current_bad_cr + triangles_total + c*mind >= best_bad_cr){ // Because triangles crossings are disjoint from the c crossings
-                break;
-            }
+            
 
             int new_current_bad_cr = current_bad_cr;
             for (int j=0; j < to_do.size(); j ++){
@@ -165,9 +151,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
                 }
             } 
 
-            if (new_current_bad_cr + triangles_total >= best_bad_cr){
-                continue;
-            }
+            
 
 
             // Search for a triangle containing x
@@ -198,6 +182,7 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
                 }
             }
             
+            // cout << "branch on " << x << endl;
             aux(adj, to_do, order, best_order, best_bad_cr, new_current_bad_cr, triangles, triangles_total, pair_crossings);
 
             if (x_triangle_weight > 0){
@@ -222,6 +207,8 @@ void aux(const vector<vector<int>>& adj, vector<int>& to_do, vector<int>& order,
 }
 
 int solver1(const vector<vector<int>>& adj) {
+    cout << "############" << endl;
+    cout << "solver1" << endl;
     cout << "nb vertices: " << adj.size() << endl;
 
     vector<int> pos = greedy_sequential(adj);
@@ -314,10 +301,7 @@ int solver1(const vector<vector<int>>& adj) {
     std::cout << "min crossings: " << lb + best_bad_cr << "\n";
 
     print(best_order);
-    cout << best_order.size() << endl;
-    cout << adj.size() << endl;
-    cout << has_duplicates(best_order) << endl;
     cout << nb_crossings_from_order(adj, best_order) << endl;
 
-    return best_order_nc;
+    return lb + best_bad_cr;
 }

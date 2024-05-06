@@ -338,6 +338,28 @@ void print_gr_format(vector<vector<int>> adj){
     }
 }
 
+void print_gr_format_sub(vector<vector<int>> adj, vector<int> vertices){
+    int n1 = 0;
+    int n2 = vertices.size();
+    int m = 0;
+    for (const int& i: vertices){
+        m += adj[i].size();
+        for (int j = 0; j < adj[i].size(); j ++){
+            if ( adj[i][j] > n1){
+                n1 = adj[i][j]+1;
+            }
+        }
+    }
+    std::cout << "p ocr " << n1 << " " << n2 << " " << m << "\n";
+
+    for (int i = 0; i < vertices.size(); i ++){
+        int x = vertices[i];
+        for (int j= 0; j < adj[x].size(); j ++){
+            std::cout << adj[x][j]+1 << " " << i+1+n1 << "\n";
+        }
+    }
+}
+
 
 int pair_diff(const vector<int>& adji, const vector<int>& adjj){
     std::pair<int,int> r = crossings_between_pair(adji, adjj);
@@ -899,9 +921,9 @@ int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<v
 
 
 int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
-    vector<vector<bool>> used(in_neighbors.size());
+    vector<vector<bool>> used(pair_crossings.size());
     for (int i= 0; i < used.size(); ++i){
-        used[i] = vector<bool>(in_neighbors.size(), false);
+        used[i] = vector<bool>(pair_crossings.size(), false);
     }
     int total = 0;
     vector<vector<int>> triangles;
@@ -913,7 +935,44 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                 if (used[x][y] || used[x][z] || used[y][z]) continue;
                 auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
                 if (it != out_neighbors[z].end() ){
-                    // triangle (xzy)
+
+                    bool found = false;
+                    for (const int& w: out_neighbors[z]){
+                        if (w == y || used[w][z] || used[w][x] || used[x][y] || used[x][z] || used[y][z] ) continue;
+                        auto it = find(in_neighbors[x].begin(), in_neighbors[x].end(), w);
+                        if (it != in_neighbors[x].end()){
+                            // z -> w -> x
+                            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                            int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                            int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                            int zw = pair_crossings[z][w] - pair_crossings[w][z];
+                            int wx = pair_crossings[w][x] - pair_crossings[x][w];
+                            int weight = min(xz, min(min(yx, zy), min(zw, wx)));
+                            // if (weight >=  min(min(yx, xz),zy)) continue;
+                            
+                            found = true;
+
+                            used[x][y] = true;
+                            used[y][x] = true;
+                            used[x][z] = true;
+                            used[z][x] = true;
+                            used[z][y] = true;
+                            used[y][z] = true;
+                            used[z][w] = true;
+                            used[w][z] = true;
+                            used[x][w] = true;
+                            used[w][x] = true;
+
+                            triangles.push_back({x,z,y});
+                            total += weight;
+                            break;
+                        }
+                        
+                    }
+
+                    if (found) break;
+
+                    // triangle y > x -> z -> y
                     used[x][y] = true;
                     used[y][x] = true;
                     used[x][z] = true;
