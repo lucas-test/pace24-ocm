@@ -20,7 +20,7 @@ pair<int, int> crossings_between_pair(const vector<int>& adji, const vector<int>
 int nb_crossings(const vector<vector<int>>& adj, const vector<int>& pos);
 int nb_crossings_from_order(const vector<vector<int>>& adj, const vector<int>& order);
 int nb_crossings_from_order2(const vector<int>& order, const vector<vector<int>>& pair_crossings);
-vector<int> order_greedy_sequential_mask3(const vector<vector<int>>& adj, const vector<int>& to_do, const vector<vector<int>>& pair_crossings);
+vector<int> order_greedy_sequential_mask3(const vector<int>& to_do, const vector<vector<int>>& pair_crossings);
 
 void reduce_degree_0(vector<vector<int>>& adj);
 vector<vector<int>> generate_random_adj(int n, int n2, double p);

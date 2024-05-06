@@ -848,8 +848,8 @@ int find_disjoint_triangles(const vector<vector<int>>& adj, const vector<int>& t
 
 
 
-vector<int> order_greedy_sequential_mask3(const vector<vector<int>>& adj, const vector<int>& to_do, const vector<vector<int>>& pair_crossings) {
-    int n = adj.size();
+vector<int> order_greedy_sequential_mask3(const vector<int>& to_do, const vector<vector<int>>& pair_crossings) {
+    int n = pair_crossings.size();
     vector<int> order;
     for (int iId =0; iId < to_do.size(); iId++) {
         int i = to_do[iId];
@@ -936,41 +936,41 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                 auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
                 if (it != out_neighbors[z].end() ){
 
-                    bool found = false;
-                    for (const int& w: out_neighbors[z]){
-                        if (w == y || used[w][z] || used[w][x] || used[x][y] || used[x][z] || used[y][z] ) continue;
-                        auto it = find(in_neighbors[x].begin(), in_neighbors[x].end(), w);
-                        if (it != in_neighbors[x].end()){
-                            // z -> w -> x
-                            int yx = pair_crossings[y][x] - pair_crossings[x][y];
-                            int xz = pair_crossings[x][z] - pair_crossings[z][x];
-                            int zy = pair_crossings[z][y] - pair_crossings[y][z];
-                            int zw = pair_crossings[z][w] - pair_crossings[w][z];
-                            int wx = pair_crossings[w][x] - pair_crossings[x][w];
-                            int weight = min(xz, min(min(yx, zy), min(zw, wx)));
-                            // if (weight >=  min(min(yx, xz),zy)) continue;
+                    // bool found = false;
+                    // for (const int& w: out_neighbors[z]){
+                    //     if (w == y || used[w][z] || used[w][x] || used[x][y] || used[x][z] || used[y][z] ) continue;
+                    //     auto it = find(in_neighbors[x].begin(), in_neighbors[x].end(), w);
+                    //     if (it != in_neighbors[x].end()){
+                    //         // z -> w -> x
+                    //         int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                    //         int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    //         int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                    //         int zw = pair_crossings[z][w] - pair_crossings[w][z];
+                    //         int wx = pair_crossings[w][x] - pair_crossings[x][w];
+                    //         int weight = min(xz, min(min(yx, zy), min(zw, wx)));
+                    //         // if (weight >=  min(min(yx, xz),zy)) continue;
                             
-                            found = true;
+                    //         found = true;
 
-                            used[x][y] = true;
-                            used[y][x] = true;
-                            used[x][z] = true;
-                            used[z][x] = true;
-                            used[z][y] = true;
-                            used[y][z] = true;
-                            used[z][w] = true;
-                            used[w][z] = true;
-                            used[x][w] = true;
-                            used[w][x] = true;
+                    //         used[x][y] = true;
+                    //         used[y][x] = true;
+                    //         used[x][z] = true;
+                    //         used[z][x] = true;
+                    //         used[z][y] = true;
+                    //         used[y][z] = true;
+                    //         used[z][w] = true;
+                    //         used[w][z] = true;
+                    //         used[x][w] = true;
+                    //         used[w][x] = true;
 
-                            triangles.push_back({x,z,y});
-                            total += weight;
-                            break;
-                        }
+                    //         triangles.push_back({x,z,y});
+                    //         total += weight;
+                    //         break;
+                    //     }
                         
-                    }
+                    // }
 
-                    if (found) break;
+                    // if (found) break;
 
                     // triangle y > x -> z -> y
                     used[x][y] = true;
