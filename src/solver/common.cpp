@@ -11,6 +11,9 @@
 #include <stack>
 #include <unordered_set>
 
+#include "solver_bruteforce.h"
+
+
 using namespace std;
 
 /**
@@ -450,7 +453,29 @@ vector<int> find_disjoint_triangle(const vector<vector<int>>& pair_crossings, co
 
     }
     return {bestk, bestw};
+}
 
+
+vector<int> find_triangle_replacement(const vector<vector<int>>& pair_crossings, int i, int j, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighors, const vector<vector<vector<int>>>& triangles_adj, vector<vector<bool>> used_arcs ){
+    if (pair_crossings[i][j] - pair_crossings[j][i] < 0){
+        swap(i,j);
+    }
+    int ij = pair_crossings[i][j] - pair_crossings[j][i]; // > 0
+    
+    int bestk = -1;
+    int bestw = 0;
+    for (const int& z: in_neighbors[i]){
+        if (used_arcs[i][z] == false && used_arcs[j][z] == false){
+            const auto it = find(out_neighors[j].begin(), out_neighors[j].end(), z);
+            if (it != out_neighors[j].end()){
+                int zi = pair_crossings[z][i] - pair_crossings[i][z];
+                int jz = pair_crossings[j][z] - pair_crossings[z][j];
+                int w = min({ij, jz, zi});
+                return {z, w };
+            }
+        }
+    }
+    return {};
 }
 
 /**
@@ -775,7 +800,7 @@ bool has_duplicates(const vector<int>& numbers) {
 
 
 
-int lower_bound_mask(const vector<vector<int>>& adj, const vector<vector<int>>& pair_crossings, const vector<int>& to_do){
+int lower_bound_mask(const vector<vector<int>>& pair_crossings, const vector<int>& to_do){
     int nb_crossings = 0;
     for (int i = 0; i < to_do.size(); i ++){
         for (int j = i+1; j < to_do.size(); j ++){
@@ -929,9 +954,22 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
     vector<vector<int>> triangles;
 
     for (const int& x: vertices){
-        for (const int& y: in_neighbors[x]){
+
+        vector<int> x_in_neighbors = in_neighbors[x];
+        sort(x_in_neighbors.begin(), x_in_neighbors.end(), [&pair_crossings, &x](int a, int b) {
+            return pair_crossings[a][x] - pair_crossings[x][a] > pair_crossings[b][x] - pair_crossings[x][b];
+        });
+
+        for (const int& y: x_in_neighbors){
             if (used[x][y]) continue;
-            for (const int& z: out_neighbors[x]){
+            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+
+            vector<int> x_out_neighbors = out_neighbors[x];
+            sort(x_out_neighbors.begin(), x_out_neighbors.end(), [&pair_crossings, &x](int a, int b) {
+                return pair_crossings[x][a] - pair_crossings[a][x] > pair_crossings[x][b] - pair_crossings[b][x];
+            });
+
+            for (const int& z: x_out_neighbors){
                 if (used[x][y] || used[x][z] || used[y][z]) continue;
                 auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
                 if (it != out_neighbors[z].end() ){
@@ -942,13 +980,12 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                     //     auto it = find(in_neighbors[x].begin(), in_neighbors[x].end(), w);
                     //     if (it != in_neighbors[x].end()){
                     //         // z -> w -> x
-                    //         int yx = pair_crossings[y][x] - pair_crossings[x][y];
                     //         int xz = pair_crossings[x][z] - pair_crossings[z][x];
                     //         int zy = pair_crossings[z][y] - pair_crossings[y][z];
                     //         int zw = pair_crossings[z][w] - pair_crossings[w][z];
                     //         int wx = pair_crossings[w][x] - pair_crossings[x][w];
                     //         int weight = min(xz, min(min(yx, zy), min(zw, wx)));
-                    //         // if (weight >=  min(min(yx, xz),zy)) continue;
+                    //         if (weight <=  min(min(yx, xz),zy)) continue;
                             
                     //         found = true;
 
@@ -967,9 +1004,7 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                     //         total += weight;
                     //         break;
                     //     }
-                        
                     // }
-
                     // if (found) break;
 
                     // triangle y > x -> z -> y
@@ -981,13 +1016,41 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                     used[y][z] = true;
                     
                     triangles.push_back({x,z,y});
-                    int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                    
                     int xz = pair_crossings[x][z] - pair_crossings[z][x];
                     int zy = pair_crossings[z][y] - pair_crossings[y][z];
                     int weight = min(min(yx, xz),zy);
                     total += weight;
                     break;
                 }
+
+                // Search for 4-cycles
+                // if (used[x][y]) break;
+                // if (used[x][z]) continue;
+                
+                // for (const int& w: out_neighbors[z]){
+                //     if (used[x][y] || used[x][z] || used[z][w] || used[y][w]
+                //     || used[y][x] || used[z][x] ||used[w][z] || used[w][y]) continue;
+                //     auto it = find(out_neighbors[w].begin(), out_neighbors[w].end(), y);
+                //     if (it != out_neighbors[w].end() ){
+                //         used[x][y] = true;
+                //         used[y][x] = true;
+                //         used[x][z] = true;
+                //         used[z][x] = true;
+                //         used[z][w] = true;
+                //         used[w][z] = true;
+                //         used[w][y] = true;
+                //         used[y][w] = true;
+
+                //         int yx = pair_crossings[y][x] - pair_crossings[x][y];
+                //         int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                //         int zw = pair_crossings[z][w] - pair_crossings[w][z];
+                //         int wy = pair_crossings[w][y] - pair_crossings[y][w];
+                //         int weight = min(min(yx, xz),min(zw, wy));
+                //         total += weight;
+                //         break;
+                //     }
+                // }
             }
         }
     }
@@ -1085,6 +1148,94 @@ int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const v
 
 
 
+int find_edge_disjoint_subgraphs(const vector<vector<int>>& pair_crossings, 
+    const vector<vector<int>>& in_neighbors,
+    const vector<int>& vertices){
+
+        vector<int> vertices2 = vertices;
+
+        sort(vertices2.begin(), vertices2.end(), [&in_neighbors](int x, int y) {
+            return in_neighbors[x].size() < in_neighbors[y].size(); 
+        });
+
+        int weight = 0;
+
+        for (int i = 0; i < vertices.size()/6; ++i){
+            vector<int> to_insert;
+            vector<int> order;
+            for (int j = 0; j < 6; ++j){
+                to_insert.push_back(vertices2[6*i+j]);
+            }
+            int lb = lower_bound_mask(pair_crossings, to_insert);
+            weight += auxBF(to_insert, order, pair_crossings, false) -lb;
+        }
+        return weight;
+    }
+
+
+
+tuple<int, vector<vector<vector<int>>>, vector<vector<bool>>> find_edge_disjoint_triangles2(
+    const vector<vector<int>>& pair_crossings,
+    const vector<vector<int>>& in_neighbors, 
+    const vector<vector<int>>& out_neighbors,
+    const vector<int>& vertices){
+
+    vector<vector<bool>> used(pair_crossings.size());
+    for (int i= 0; i < used.size(); ++i){
+        used[i] = vector<bool>(pair_crossings.size(), false);
+    }
+    int total = 0;
+    vector<vector<vector<int>>> triangles_adj(pair_crossings.size());
+
+    for (const int& x: vertices){
+
+        vector<int> x_in_neighbors = in_neighbors[x];
+        sort(x_in_neighbors.begin(), x_in_neighbors.end(), [&pair_crossings, &x](int a, int b) {
+            return pair_crossings[a][x] - pair_crossings[x][a] > pair_crossings[b][x] - pair_crossings[x][b];
+        });
+
+        for (const int& y: x_in_neighbors){
+            if (used[x][y]) continue;
+            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+
+            vector<int> x_out_neighbors = out_neighbors[x];
+            sort(x_out_neighbors.begin(), x_out_neighbors.end(), [&pair_crossings, &x](int a, int b) {
+                return pair_crossings[x][a] - pair_crossings[a][x] > pair_crossings[x][b] - pair_crossings[b][x];
+            });
+
+            for (const int& z: x_out_neighbors){
+                if (used[x][y] || used[x][z] || used[y][z]) continue;
+                auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
+                if (it != out_neighbors[z].end() ){
+
+                    // triangle y > x -> z -> y
+                    used[x][y] = true;
+                    used[y][x] = true;
+                    used[x][z] = true;
+                    used[z][x] = true;
+                    used[z][y] = true;
+                    used[y][z] = true;
+                    
+                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                    int weight = min(min(yx, xz),zy);
+                    triangles_adj[x].push_back({z,y,weight});
+                    triangles_adj[y].push_back({x,z,weight});
+                    triangles_adj[z].push_back({x,y,weight});
+                    
+                    
+                    total += weight;
+                    break;
+                }
+
+              
+            }
+        }
+    }
+    return make_tuple(total, triangles_adj, used);
+}
+
+
 
 vector<vector<int>> compute_pair_crossings(
     const vector<vector<int>>& adj){
@@ -1113,3 +1264,12 @@ void to_dot(
         }
         cout << "}" << endl;
     }
+
+
+
+bool are_equal(const vector<int>& vec1, const vector<int>& vec2) {
+    if (vec1.size()!= vec2.size()) {
+        return false;
+    }
+    return equal(vec1.begin(), vec1.end(), vec2.begin());
+}

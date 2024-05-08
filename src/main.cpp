@@ -10,6 +10,7 @@
 #include "common.h"
 #include "solver1.h"
 #include "solver1b.h"
+#include "solver2.h"
 #include "solver_bruteforce.h"
 
 using namespace std;
@@ -95,30 +96,15 @@ int main(int argc, char* argv[]) {
     // int greedy_inc_deg = nb_crossings(adj2, greedy_sequential(adj2));
     // cout << "greedy lol: " << greedy_inc_deg-lb << "\n";
 
+    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
+    //     return a[0] < b[0];
+    // });
 
     // auto digraph = compute_directed_graph(adj);
     // auto compo = scc(digraph.second, digraph.first);
 
     // print_adj(adj);
 
-    // for (int i = 0; i < digraph.first.size(); ++i){
-    //     if (digraph.first[i].size() == 0){
-    //         cout << i << " is source" << endl;
-    //     }
-    //     // cout << i << " <-:";
-    //     // for (int j = 0; j < digraph.first[i].size(); ++j){
-    //     //     cout << digraph.first[i][j] << " ";
-    //     // }
-    //     // cout << endl;
-    // }
-
-    // for (int i = 0; i < digraph.second.size(); ++i){
-    //     cout << i << " ->:";
-    //     for (int j = 0; j < digraph.second[i].size(); ++j){
-    //         cout << digraph.second[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
 
     // for (int i = 0; i < compo.size(); ++i){
     //     cout << i << ":";
@@ -134,7 +120,11 @@ int main(int argc, char* argv[]) {
 
     // cout << solver_bruteforce(adj, false) << endl;
     // cout << endl;
-    cout << solver1b(adj, true) << endl;
+    
+
+    
+    cout << solver2(adj, true) << endl;
+
 
     // auto pair_crossings = compute_pair_crossings(adj);
     // auto digraph = compute_directed_graph(adj);

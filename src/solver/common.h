@@ -13,7 +13,7 @@ vector<vector<int>> load_file(const string& pathName);
 void print_adj(const vector<vector<int>>& adj);
 void print(const vector<int> v);
 int lower_bound(const vector<vector<int>>& adj);
-int lower_bound_mask(const vector<vector<int>>& adj, const vector<vector<int>>& pair_crossings, const vector<int>& to_do);
+int lower_bound_mask(const vector<vector<int>>& pair_crossings, const vector<int>& to_do);
 
 vector<int> greedy_sequential(const vector<vector<int>>& adj);
 pair<int, int> crossings_between_pair(const vector<int>& adji, const vector<int>& adjj);
@@ -46,6 +46,18 @@ int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<v
 int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 
+int find_edge_disjoint_subgraphs(const vector<vector<int>>& pair_crossings, 
+    const vector<vector<int>>& in_neighbors,
+    const vector<int>& vertices);
+
+tuple<int, vector<vector<vector<int>>>, vector<vector<bool>>> find_edge_disjoint_triangles2(
+    const vector<vector<int>>& pair_crossings,
+    const vector<vector<int>>& in_neighbors, 
+    const vector<vector<int>>& out_neighbors,
+     const vector<int>& vertices);
+
+vector<int> find_triangle_replacement(const vector<vector<int>>& pair_crossings, int i, int j, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighors, const vector<vector<vector<int>>>& triangles_adj, vector<vector<bool>> used_arcs );
+
 vector<vector<int>> compute_pair_crossings(
     const vector<vector<int>>& adj);
 
@@ -53,5 +65,7 @@ void to_dot(
     const vector<vector<int>>& out_neighbors,
     const vector<vector<int>>& pair_crossings
     );
+
+bool are_equal(const vector<int>& vec1, const vector<int>& vec2);
 
 #endif 

@@ -18,9 +18,7 @@ int auxBF(
     ) {
         if (to_insert.size() == 0){
             int nb_cr = nb_crossings_from_order2(order, pair_crossings);
-            if (nb_cr <= 1223){
-                print(order);
-            }
+            
             if (verbose){
                 print(order);
                 cout << nb_cr << endl;
