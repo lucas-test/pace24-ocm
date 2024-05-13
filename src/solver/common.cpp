@@ -456,7 +456,7 @@ vector<int> find_disjoint_triangle(const vector<vector<int>>& pair_crossings, co
 }
 
 
-vector<int> find_triangle_replacement(const vector<vector<int>>& pair_crossings, int i, int j, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighors, const vector<vector<vector<int>>>& triangles_adj, vector<vector<bool>> used_arcs ){
+pair<int,int> find_triangle_replacement(const vector<vector<int>>& pair_crossings, vector<bool> excluded, int i, int j, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighors, const vector<vector<vector<int>>>& triangles_adj, const vector<vector<bool>>& used_arcs ){
     if (pair_crossings[i][j] - pair_crossings[j][i] < 0){
         swap(i,j);
     }
@@ -465,17 +465,17 @@ vector<int> find_triangle_replacement(const vector<vector<int>>& pair_crossings,
     int bestk = -1;
     int bestw = 0;
     for (const int& z: in_neighbors[i]){
+        if (excluded[z]) continue;
         if (used_arcs[i][z] == false && used_arcs[j][z] == false){
-            const auto it = find(out_neighors[j].begin(), out_neighors[j].end(), z);
-            if (it != out_neighors[j].end()){
+            if (pair_crossings[j][z] - pair_crossings[z][j] > 0){
                 int zi = pair_crossings[z][i] - pair_crossings[i][z];
                 int jz = pair_crossings[j][z] - pair_crossings[z][j];
                 int w = min({ij, jz, zi});
-                return {z, w };
+                return make_pair(z, w );
             }
         }
     }
-    return {};
+    return make_pair(-1,-1);
 }
 
 /**
@@ -874,19 +874,16 @@ int find_disjoint_triangles(const vector<vector<int>>& adj, const vector<int>& t
 
 
 vector<int> order_greedy_sequential_mask3(const vector<int>& to_do, const vector<vector<int>>& pair_crossings) {
-    int n = pair_crossings.size();
     vector<int> order;
-    for (int iId =0; iId < to_do.size(); iId++) {
+    for (int iId =0; iId < to_do.size(); ++iId) {
         int i = to_do[iId];
-        // if (mask[i] == false) continue;
         int cr = 0;
         int minCr = 0;
         int minK = 0;
-        for (int k = 0; k < order.size(); k++) {
+        for (int k = 0; k < order.size(); ++k) {
             int j = order[k];
             int iLeft = pair_crossings[j][i];
             int iRight = pair_crossings[i][j];
-            // auto [iLeft, iRight] = crossings_between_pair(adj[j], adj[i]);
             cr += iRight - iLeft;
             if (cr < minCr) {
                 minCr = cr;
@@ -902,56 +899,16 @@ vector<int> order_greedy_sequential_mask3(const vector<int>& to_do, const vector
 
 
 
-/**
- * @brief useless, edge disjoint triangles is better
- * a triangles tree is set of triangles which can only intersect in at most 1 vertex and the graph of the triangles should be acyclic (therefore a tree)
- * 
- * @param pair_crossings 
- * @param in_neighbors 
- * @param out_neighbors 
- * @param vertices 
- * @return int 
- */
-int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<vector<int>> in_neighbors, const vector<vector<int>> out_neighbors, const vector<int> vertices){
-    vector<bool> used(in_neighbors.size(), false);
-    int total = 0;
-    vector<vector<int>> triangles;
-
-    for (int v: vertices){
-        for (int w: in_neighbors[v]){
-            if (used[w]) continue;
-            for (int z: out_neighbors[v]){
-                if (used[z]) continue;
-                auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), w);
-                if (it != out_neighbors[z].end() ){
-                    // triangle (vzw)
-                    used[v] = true;
-                    used[z] = true;
-                    used[w] = true;
-                    // triangles.push_back({v,z,w});
-                    int wv = pair_crossings[w][v] - pair_crossings[v][w];
-                    int vz = pair_crossings[v][z] - pair_crossings[z][v];
-                    int zw = pair_crossings[z][w] - pair_crossings[w][z];
-                    int weight = min(min(wv, vz),zw);
-                    total += weight;
-                    break;
-                }
-            }
-        }
-    }
-    cout << "triangles: " << triangles.size() << " " << total << endl;
-    return total;
-}
 
 
-
-int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
+pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
     vector<vector<bool>> used(pair_crossings.size());
     for (int i= 0; i < used.size(); ++i){
         used[i] = vector<bool>(pair_crossings.size(), false);
     }
     int total = 0;
-    vector<vector<int>> triangles;
+    // vector<vector<int>> triangles;
+    vector<vector<vector<int>>> triangles_adj(pair_crossings.size());
 
     for (const int& x: vertices){
 
@@ -971,8 +928,8 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
 
             for (const int& z: x_out_neighbors){
                 if (used[x][y] || used[x][z] || used[y][z]) continue;
-                auto it = find(out_neighbors[z].begin(), out_neighbors[z].end(), y);
-                if (it != out_neighbors[z].end() ){
+                int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                if (zy > 0){
 
                     // bool found = false;
                     // for (const int& w: out_neighbors[z]){
@@ -1015,11 +972,15 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
                     used[z][y] = true;
                     used[y][z] = true;
                     
-                    triangles.push_back({x,z,y});
+
                     
                     int xz = pair_crossings[x][z] - pair_crossings[z][x];
-                    int zy = pair_crossings[z][y] - pair_crossings[y][z];
                     int weight = min(min(yx, xz),zy);
+                    // triangles.push_back({x,z,y});
+                    triangles_adj[x].push_back({z,y,weight});
+                    triangles_adj[y].push_back({x,z,weight});
+                    triangles_adj[z].push_back({x,y,weight});
+
                     total += weight;
                     break;
                 }
@@ -1054,7 +1015,7 @@ int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, cons
             }
         }
     }
-    return total;
+    return make_pair(total, triangles_adj);
 }
 
 
@@ -1272,4 +1233,311 @@ bool are_equal(const vector<int>& vec1, const vector<int>& vec2) {
         return false;
     }
     return equal(vec1.begin(), vec1.end(), vec2.begin());
+}
+
+
+
+
+pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
+    vector<vector<bool>> used(pair_crossings.size());
+    for (int i= 0; i < used.size(); ++i){
+        used[i] = vector<bool>(pair_crossings.size(), false);
+    }
+    int total = 0;
+    vector<vector<vector<int>>> triangles_adj(pair_crossings.size());
+
+
+
+    for (const int& x: vertices){
+
+        vector<int> x_in_neighbors = in_neighbors[x];
+        sort(x_in_neighbors.begin(), x_in_neighbors.end(), [&pair_crossings, &x](int a, int b) {
+            return pair_crossings[a][x] - pair_crossings[x][a] > pair_crossings[b][x] - pair_crossings[x][b];
+        });
+
+        for (const int& y: x_in_neighbors){
+            if (used[x][y]) continue;
+            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+
+            int bestz = -1;
+            int best_w = 0;
+
+            for (const int& z: out_neighbors[x]){
+                if (used[x][y] || used[x][z] || used[y][z]) continue;
+                int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                if (zy > 0 ){
+                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    int weight = min(min(yx, xz),zy);
+
+                    if (weight > best_w){
+                        bestz = z;
+                        best_w = weight;
+                    }
+                }
+            }
+
+            if (bestz >= 0){
+                int z = bestz;
+                int weight = best_w;
+                // triangle y > x -> z -> y
+                used[x][y] = true;
+                used[y][x] = true;
+                used[x][z] = true;
+                used[z][x] = true;
+                used[z][y] = true;
+                used[y][z] = true;
+                // triangles.push_back({x,z,y});
+                triangles_adj[x].push_back({z,y,weight});
+                triangles_adj[y].push_back({x,z,weight});
+                triangles_adj[z].push_back({x,y,weight});
+
+                total += weight;
+            }
+            
+        }
+    }
+    return make_pair(total, triangles_adj);
+}
+
+
+
+pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy2(
+    const vector<bool>& mask,
+    const vector<int>& vertices,
+    const vector<vector<vector<int>>>& triangles){
+
+    vector<vector<bool>> used(mask.size());
+    for (int i= 0; i < used.size(); ++i){
+        used[i] = vector<bool>(mask.size(), false);
+    }
+    int total = 0;
+    vector<vector<vector<int>>> triangles_adj(mask.size());
+
+
+
+    for (const int& x: vertices){
+
+        // int best_triangle_index = -1;
+        // int best_weight = 0;
+
+        for (int i = 0; i < triangles[x].size(); ++i){
+            auto triangle = triangles[x][i];
+            int y = triangle[0];
+            int z = triangle[1];
+            if (mask[y] && mask[z] &&
+            used[x][y] == false && used[x][z] == false && used[y][z] == false){
+                int weight = triangle[2];
+
+                 used[x][y] = true;
+                used[y][x] = true;
+                used[x][z] = true;
+                used[z][x] = true;
+                used[z][y] = true;
+                used[y][z] = true;
+                triangles_adj[x].push_back({z,y,weight});
+                triangles_adj[y].push_back({x,z,weight});
+                triangles_adj[z].push_back({x,y,weight});
+
+                total += weight;
+
+                // if (weight > best_weight){
+                //     best_weight = weight;
+                //     best_triangle_index = i;
+                // }
+            }
+        }
+
+        // if (best_triangle_index >= 0){
+        //     int i = best_triangle_index;
+        //     int weight = best_weight;
+        //     auto triangle = triangles[x][i];
+        //     int y = triangle[0];
+        //     int z = triangle[1];
+        //     used[x][y] = true;
+        //     used[y][x] = true;
+        //     used[x][z] = true;
+        //     used[z][x] = true;
+        //     used[z][y] = true;
+        //     used[y][z] = true;
+        //     triangles_adj[x].push_back({z,y,weight});
+        //     triangles_adj[y].push_back({x,z,weight});
+        //     triangles_adj[z].push_back({x,y,weight});
+
+        //     total += weight;
+        // }
+    }
+    return make_pair(total, triangles_adj);
+}
+
+
+
+int bad_cr_lower_bound(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
+    vector<vector<bool>> used(pair_crossings.size());
+    for (int i = 0; i < pair_crossings.size(); ++i){
+        used[i] = vector<bool>(pair_crossings.size());
+    }
+
+
+    int total = 0;
+    for (int i = 0; i < vertices.size(); ++i){
+        int x = vertices[i];
+
+        int best = 0;
+        int best_j = -1;
+
+        for (int j= 0; j < vertices.size(); ++j){
+            if (i == j) continue;
+            int y = vertices[j];
+
+            int wxy = 0;
+            if (used[y][x] == false && pair_crossings[y][x] - pair_crossings[x][y] > 0){
+                wxy += pair_crossings[y][x] - pair_crossings[x][y];
+            }
+            for (const int& z: out_neighbors[y]){
+                int zx = pair_crossings[z][x] - pair_crossings[x][z];
+                if (used[z][x] == false &&  used[y][z] == false && zx > 0){
+                    wxy += min(zx, pair_crossings[y][z] - pair_crossings[z][y]);
+                }
+            }
+            int wyx = 0;
+            if (used[x][y] == false && pair_crossings[x][y] - pair_crossings[y][x] > 0){
+                wyx += pair_crossings[x][y] - pair_crossings[y][x];
+            }
+            for (const int& z: out_neighbors[x]){
+                int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                if (used[z][x] == false && used[z][y] == false && zy > 0){
+                    wyx += min(zy, pair_crossings[x][z] - pair_crossings[z][x]);
+                }
+            }
+            if (min(wxy, wyx) > best){
+                best_j = j;
+                best = min(wxy, wyx);
+            }
+        }
+
+        if (best_j >= 0){
+            int j = best_j;
+            
+            int y = vertices[j];
+
+            if (used[y][x] == false && pair_crossings[y][x] - pair_crossings[x][y] > 0){
+                used[y][x] = true;
+                used[x][y] = true;
+            }
+            for (const int& z: out_neighbors[y]){
+                int zx = pair_crossings[z][x] - pair_crossings[x][z];
+                if (used[z][x] == false &&  used[y][z] == false && zx > 0){
+                    used[z][x] = true;
+                    used[x][z] = true;
+                    used[z][y] = true;
+                    used[y][z] = true;
+                }
+            }
+            if (used[x][y] == false && pair_crossings[x][y] - pair_crossings[y][x] > 0){
+                used[y][x] = true;
+                used[x][y] = true;
+            }
+            for (const int& z: out_neighbors[x]){
+                int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                if (used[z][x] == false && used[z][y] == false && zy > 0){
+                    used[z][x] = true;
+                    used[x][z] = true;
+                    used[z][y] = true;
+                    used[y][z] = true;
+                }
+            }
+            total += best;
+        }
+        
+
+        
+    }
+    return total;
+}
+
+
+
+
+
+
+
+int find_triangles_from_order(const vector<vector<int>>& pair_crossings,
+const vector<vector<int>>& in_neighbors, 
+const vector<int>& order,
+const vector<int>& vertices){
+    vector<vector<bool>> used(pair_crossings.size());
+    for (int i = 0; i < pair_crossings.size(); ++i){
+        used[i] = vector<bool>(pair_crossings.size());
+    }
+    int total = 0;
+
+    for (int i = 0; i < vertices.size(); ++i){
+        int x = vertices[i];
+        
+        for (int j = i+1; j < vertices.size(); ++j){
+            int y = vertices[j];
+            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+            if (yx > 0 && used[x][y] == false){
+                for (int k = i+1; k < j; ++k){
+                    int z = vertices[k];
+                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                    if (xz > 0 && zy > 0 && used[x][z] == false && used[z][y] == false){
+                        int w = min(min(xz, zy), yx);
+                        used[x][y] = true;
+                        used[y][x] = true;
+                        used[x][z] = true;
+                        used[z][x] = true;
+                        used[z][y] = true;
+                        used[y][z] = true;
+                        total += w;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return total;
+}
+
+
+/**
+ * This one should be faster in linear time
+*/
+int find_triangles_from_order2(const vector<vector<int>>& pair_crossings,
+    const vector<int>& order,
+    const vector<int>& vertices){
+
+    vector<vector<bool>> used(pair_crossings.size());
+    for (int i = 0; i < pair_crossings.size(); ++i){
+        used[i] = vector<bool>(pair_crossings.size());
+    }
+    int total = 0;
+    int j = 2;
+    int i = 0;
+    while(i < vertices.size() && j< vertices.size()){
+        int x = vertices[i];
+        int y = vertices[j];
+        int z = vertices[i+1];
+
+
+        int yx = pair_crossings[y][x] - pair_crossings[x][y];
+        if (yx > 0){
+            int xz = pair_crossings[x][z] - pair_crossings[z][x];
+            int zy = pair_crossings[z][y] - pair_crossings[y][z];
+            if (xz > 0 && zy > 0 ){
+                int w = min(min(xz, zy), yx);
+                total += w;
+                i ++;
+                if (i+1 >= j){
+                    j ++;
+                }
+            } else {
+                i ++;
+            }
+        } else {
+            j ++;
+        }
+    }
+    return total;
 }

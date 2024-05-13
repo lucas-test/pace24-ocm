@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
     
 
     
-    cout << solver2(adj, true) << endl;
+    cout << solver1b(adj, true) << endl;
 
 
     // auto pair_crossings = compute_pair_crossings(adj);
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
     //     }
     // }
 
-    // find_triangles_tree(pair_crossings, digraph.first, digraph.second, vertices);
+    // (pair_crossings, digraph.first, digraph.second, vertices);
 
     // find_edge_disjoint_triangles(pair_crossings, digraph.first, digraph.second, vertices);
 

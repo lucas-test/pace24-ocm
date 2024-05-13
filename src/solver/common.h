@@ -42,9 +42,23 @@ vector<pair<vector<int>, bool>> scc_sub_digraph_with_sources(const vector<vector
 bool has_duplicates(const vector<int>& numbers);
 
 int find_disjoint_triangles(const vector<vector<int>>& adj, const vector<int>& to_do, const vector<vector<int>>& pair_crossings);
-int find_triangles_tree(const vector<vector<int>> pair_crossings, const vector<vector<int>> in_neighbors, const vector<vector<int>> out_neighbors, const vector<int> vertices);
-int find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
+pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
+pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
+
+pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy2(
+    const vector<bool>& mask,
+    const vector<int>& vertices,
+    const vector<vector<vector<int>>>& triangles);
+
+int find_triangles_from_order(const vector<vector<int>>& pair_crossings,
+    const vector<vector<int>>& in_neighbors, 
+    const vector<int>& order,
+    const vector<int>& vertices);
+
+int find_triangles_from_order2(const vector<vector<int>>& pair_crossings,
+    const vector<int>& order,
+    const vector<int>& vertices);
 
 int find_edge_disjoint_subgraphs(const vector<vector<int>>& pair_crossings, 
     const vector<vector<int>>& in_neighbors,
@@ -56,7 +70,9 @@ tuple<int, vector<vector<vector<int>>>, vector<vector<bool>>> find_edge_disjoint
     const vector<vector<int>>& out_neighbors,
      const vector<int>& vertices);
 
-vector<int> find_triangle_replacement(const vector<vector<int>>& pair_crossings, int i, int j, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighors, const vector<vector<vector<int>>>& triangles_adj, vector<vector<bool>> used_arcs );
+
+pair<int,int> find_triangle_replacement(const vector<vector<int>>& pair_crossings, vector<bool> excluded, int i, int j, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighors, const vector<vector<vector<int>>>& triangles_adj, const vector<vector<bool>>& used_arcs );
+int bad_cr_lower_bound(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 
 vector<vector<int>> compute_pair_crossings(
     const vector<vector<int>>& adj);
