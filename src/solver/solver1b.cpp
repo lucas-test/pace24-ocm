@@ -147,7 +147,7 @@ void aux1b(const vector<vector<int>>& adj,
 
 
         // Comparisons of the bounds
-        cout << lower_bound0 << " " << rind << " " << rout << " " << triangles_total << endl;
+        // cout << lower_bound0 << " " << rind << " " << rout << " " << triangles_total << endl;
 
 
         // Cuttings
@@ -434,9 +434,11 @@ void aux1b(const vector<vector<int>>& adj,
             } 
 
             if (order.size() >= 2){
-                int w0 = pair_crossings[x][order[0]] - pair_crossings[order[0]][x];
-                int w1 = pair_crossings[order[0]][order[1]] - pair_crossings[order[1]][order[0]];
-                int w2 = pair_crossings[order[1]][x] - pair_crossings[x][order[1]];
+                int y = order[order.size()-1];
+                int z = order[order.size()-2];
+                int w0 = pair_crossings[x][z] - pair_crossings[z][x];
+                int w1 = pair_crossings[z][y] - pair_crossings[y][z];
+                int w2 = pair_crossings[y][x] - pair_crossings[x][y];
                 int mw = min(w1, w2);
                 if (w0 > mw) continue;
             }

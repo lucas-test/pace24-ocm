@@ -77,6 +77,8 @@ int bad_cr_lower_bound(const vector<vector<int>>& pair_crossings, const vector<v
 vector<vector<int>> compute_pair_crossings(
     const vector<vector<int>>& adj);
 
+vector<vector<int>> compute_twins(const vector<vector<int>>& adj);
+
 void to_dot(
     const vector<vector<int>>& out_neighbors,
     const vector<vector<int>>& pair_crossings

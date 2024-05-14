@@ -38,7 +38,12 @@ using namespace std;
  */
 
 
-
+bool are_equal(const vector<int>& vec1, const vector<int>& vec2) {
+    if (vec1.size()!= vec2.size()) {
+        return false;
+    }
+    return equal(vec1.begin(), vec1.end(), vec2.begin());
+}
 
 
 
@@ -1213,6 +1218,22 @@ vector<vector<int>> compute_pair_crossings(
 
 
 
+/**
+ * x and y are twins if they have the same adjacencies
+*/
+vector<vector<int>> compute_twins(const vector<vector<int>>& adj){
+    vector<vector<int>> twins(adj.size());
+    for (int i = 0; i < adj.size(); ++i){
+        for (int j = 0; j < adj.size(); ++j){
+            if (are_equal( adj[i], adj[j])){
+                twins[i].push_back(j);
+            }
+        }
+    }
+    return twins;
+}
+
+
 void to_dot(
     const vector<vector<int>>& out_neighbors,
     const vector<vector<int>>& pair_crossings
@@ -1228,12 +1249,7 @@ void to_dot(
 
 
 
-bool are_equal(const vector<int>& vec1, const vector<int>& vec2) {
-    if (vec1.size()!= vec2.size()) {
-        return false;
-    }
-    return equal(vec1.begin(), vec1.end(), vec2.begin());
-}
+
 
 
 
@@ -1499,6 +1515,9 @@ const vector<int>& vertices){
     }
     return total;
 }
+
+
+
 
 
 /**
