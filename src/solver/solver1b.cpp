@@ -206,7 +206,7 @@ void aux1b(const vector<vector<int>>& adj,
                     continue;
                 }
 
-                // if (depth <= 500 ) cout << string(depth, '-') << i << "/" << compo.size() << " size " << compo[i].first.size() <<  endl;
+                if (depth <= 1 ) cout << string(depth, '-') << i << "/" << compo.size() << " size " << compo[i].first.size() <<  endl;
 
 
                 // cout << string(depth, '-') << "component: " << compo[i].second ? "source": "";
@@ -294,7 +294,7 @@ void aux1b(const vector<vector<int>>& adj,
                     //     print_gr_format_sub(adj, compo[i].first);
                     // }
 
-                    // if (depth <= 300) cout << string(depth, '-') << "final best bad cr=" << rbest_bad_cr << endl;
+                    if (depth <= 1) cout << string(depth, '-') << "final best bad cr=" << rbest_bad_cr << endl;
 
                     
                     

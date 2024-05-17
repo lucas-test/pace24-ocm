@@ -1560,3 +1560,27 @@ int find_triangles_from_order2(const vector<vector<int>>& pair_crossings,
     }
     return total;
 }
+
+
+
+
+void check_digraph_twins(const vector<int>& vertices, const vector<vector<int>>& pair_crossings){
+    for (const int& x: vertices){
+        for (const int& y: vertices){
+            if (x < y && pair_crossings[x][y] == pair_crossings[y][x]){
+                bool is_twin = true;
+                for (const int& z: vertices){
+                    if (x != z && y != z){
+                        if (pair_crossings[x][z] != pair_crossings[y][z] || pair_crossings[z][x] != pair_crossings[z][y]){
+                            is_twin = false;
+                            break;
+                        }
+                    }
+                }
+                if (is_twin){
+                    cout << "twins: " << x << " " << y << endl;
+                }
+            }
+        }
+    }
+}

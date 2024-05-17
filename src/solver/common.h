@@ -86,4 +86,7 @@ void to_dot(
 
 bool are_equal(const vector<int>& vec1, const vector<int>& vec2);
 
+void check_digraph_twins(const vector<int>& vertices, const vector<vector<int>>& pair_crossings);
+
+
 #endif 

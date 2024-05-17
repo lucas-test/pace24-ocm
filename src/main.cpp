@@ -12,6 +12,7 @@
 #include "solver1b.h"
 #include "solver2.h"
 #include "solver3.h"
+#include "solver4.h"
 #include "solver_bruteforce.h"
 
 using namespace std;
@@ -127,7 +128,7 @@ int main(int argc, char* argv[]) {
 
     // to_dot(digraph.second, pair_crossings);
     
-    cout << solver3(adj, true) << endl;
+    cout << solver4(adj, true) << endl;
 
 
     // auto pair_crossings = compute_pair_crossings(adj);
