@@ -29,13 +29,14 @@ using namespace std;
 void aux4(const vector<vector<int>>& adj, 
     const vector<vector<int>>& twins,
     vector<int>& to_do, 
+    int s,
     vector<int>& order, 
     vector<int>& best_order, 
     int& best_bad_cr, 
     int& current_bad_cr, 
     const vector<vector<int>>& pair_crossings, 
-    vector<vector<int>>& in_neighbors,
-    vector<vector<int>>& out_neighbors, 
+    const vector<vector<int>>& in_neighbors,
+    const vector<vector<int>>& out_neighbors, 
     vector<bool>& mask, 
     int depth, 
     vector<vector<int>>& triangles_adj, 
@@ -43,14 +44,27 @@ void aux4(const vector<vector<int>>& adj,
     vector<bool>& excluded,
     const vector<vector<vector<int>>>& triangles,
     vector<int>& in_weights,
-    int last_source ){
+    int last_source,
+    vector<int>& sources,
+    vector<int>& pos ){
 
+        // cout << endl;
+        // cout << "aux s=" << s << endl;
+        // print(order);
+        // print(to_do);
+        // for (int i = 0; i < s; ++i){
+        //     cout << i << " " << to_do[i] << " " << pos[to_do[i]] << endl;
+        // }
 
-    if (to_do.size() == 0){
+    if (s == 0){
         if (current_bad_cr < best_bad_cr){
             cout << "better " << current_bad_cr << "\n";
             best_order = order;
             best_bad_cr = current_bad_cr;
+            // if ( has_duplicates(best_order)){
+            //     cout << "order has duplicates" << endl;
+            //     print(order);
+            // }
         }
     } else {
 
@@ -110,24 +124,43 @@ void aux4(const vector<vector<int>>& adj,
         //     }
         // }
 
-        sort(to_do.begin(), to_do.end(), [&in_weights](int a, int b) {
-            return in_weights[a] < in_weights[b];
-        });
+        // sort(to_do.begin(), to_do.end(), [&in_weights](int a, int b) {
+        //     return in_weights[a] < in_weights[b];
+        // });
 
-        // cout << string(depth, '-');
+        // cout << string(depth, '-') << current_bad_cr << " todo " ;
         // print(to_do);
 
-        if (in_weights[to_do[0]] == 0){
+        // print(in_weights);
+        // for (int j=0; j < adj.size(); ++j){
+        //     cout << "mask " << j << " " << mask[j] << endl;
+        // }
 
-            vector<int> sources;
+        // vector<int> sources;
 
-            for (int i = 0; i < to_do.size(); ++i){
-                int x = to_do[i];
-                if (in_weights[x] > 0){
-                    break;
-                }
-                sources.push_back(x);
-            }
+        // for (int i = 0; i < s; ++i){
+        //     int x = to_do[i];
+        //     if (in_weights[x] == 0)
+        //         sources.push_back(i);
+        // }
+
+        if (sources.size() > 0){
+
+            sort(sources.begin(), sources.end());
+
+            // cout << endl;
+            // cout << "sources ";
+            // print(sources);
+
+            // vector<int> sources;
+
+            // for (int i = 0; i < to_do.size(); ++i){
+            //     int x = to_do[i];
+            //     if (in_weights[x] > 0){
+            //         break;
+            //     }
+            //     sources.push_back(x);
+            // }
 
             // cout << string(depth, '-') << "sources ";
             // print(sources);
@@ -155,37 +188,110 @@ void aux4(const vector<vector<int>>& adj,
             //     }
             // }
 
-            vector<int> new_to_do;
-            for (const int& y: to_do){
-                if (in_weights[y] > 0) 
-                    new_to_do.push_back(y);
+            // vector<int> new_to_do;
+            // for (int j = 0; j < s; ++j){
+            //     int y = to_do[j];
+            //     if (in_weights[y] > 0) 
+            //         new_to_do.push_back(y);
+            // }
+
+            // if ( has_duplicates(sources)){
+            //     cout << "sources has duplicates" << endl;
+            //     print(sources);
+            // }
+
+            int sources_size = sources.size();
+            vector<int> sources2;
+
+            vector<int> sources_values;
+            for (const int& id: sources){
+                sources_values.push_back(to_do[id]);
             }
 
-            for (const int& y: sources){
-                for (const int& z: out_neighbors[y]){
-                    if (mask[z])
-                    in_weights[z] -= pair_crossings[y][z] - pair_crossings[z][y];
-                }
-            }
+            // for (const int& j: sources){
+            //     int y = to_do[j];
+            //     for (const int& z: out_neighbors[y]){
+            //         if (mask[z]){
+            //             in_weights[z] -= pair_crossings[y][z] - pair_crossings[z][y];
+            //             if (in_weights[z] == 0){
+            //                 s2v.push_back(z);
+            //                 int jj = pos[z] - s + sources_size;
+            //                 if( 0 <= jj && jj < sources_size){
+            //                     sources2.push_back(sources[jj]);
+            //                 } else {
+                                
+            //                     sources2.push_back(pos[z]);
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
-            for (const int& y: sources){
+            // for (int j = 0; j < to_do.size(); ++j){
+            //     if (mask[to_do[j]] && pos[to_do[j]] != j){
+            //         cout << "BUGGGGGGGGGGGG" << endl;
+            //     }
+            // }
+
+
+
+
+            // cout << "---" << endl;
+            // print(order);
+            // print(sources);
+
+
+            for (int j = sources.size()-1; j >= 0; --j){
+                int k = sources[j];
+                int y = to_do[k];
                 order.push_back(y);
                 mask[y] = false;
                 // out_neighbors[y] = {};
             }
 
-            // vector<bool> next_excluded(adj.size(), false);
+            for (int j = sources.size()-1; j >= 0; --j){
+                int k = sources[j];
+                pos[to_do[s-1-(sources.size()-1-j)]] = k;
+                swap( to_do[k], to_do[s-1-(sources.size()-1-j)]);
 
-            aux4(adj, twins, new_to_do, order, best_order, best_bad_cr, current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, 0, excluded, triangles, in_weights, 0);
+            }
 
 
-            for (const int& y: sources){
+          
+            for (const int& y: sources_values){
+                for (const int& z: out_neighbors[y]){
+                    if (mask[z]){
+                        in_weights[z] -= pair_crossings[y][z] - pair_crossings[z][y];
+                        if (in_weights[z] == 0){
+                            sources2.push_back(pos[z]);
+                        }
+                    }
+                }
+            }
+
+
+            aux4(adj, twins, to_do, s- sources.size(), order, best_order, best_bad_cr, current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, 0, excluded, triangles, in_weights, 0, sources2, pos);
+
+            for (int j = 0; j < sources.size(); ++j){
+                int k = sources[j];
+                swap( to_do[k], to_do[s-1-(sources.size()-1-j)]);
+            }
+
+            for (int j = 0; j < sources.size(); ++j){
+                pos[to_do[s-1-(sources.size()-1-j)]] = s-1-(sources.size()-1-j);
+            }
+
+            for (int j = sources.size()-1; j >= 0; --j){
+                int k = sources[j];
+                int y = to_do[k];
                 order.pop_back();
                 mask[y] = true;
                 // out_neighbors[y] = old_out_neighbors[y];
             }
 
-            for (const int& y: sources){
+
+            for (const int& j: sources){
+                int y = to_do[j];
                 for (const int& z: out_neighbors[y]){
                     if (mask[z])
                     in_weights[z] += pair_crossings[y][z] - pair_crossings[z][y];
@@ -208,7 +314,7 @@ void aux4(const vector<vector<int>>& adj,
 
         // Branch on to_do
         // cout << "branch " << to_do.size() << "\n";
-        for (int i = 0; i < to_do.size(); ++i){
+        for (int i = 0; i < s; ++i){
             int x = to_do[i];
             // if (excluded[x]){
             //     // cout << string(depth, '-') << "branch exclude " << x << endl;
@@ -231,8 +337,9 @@ void aux4(const vector<vector<int>>& adj,
 
             // Only if to_do is sorted by increasing in_weights
             if (current_bad_cr + x_bad_cr >= best_bad_cr){
-                // cout << string(depth, '-') << "branch break " << x << endl;
-                break; 
+                // cout << string(depth, '-') << "branch continue " << x << endl;
+                // break; 
+                continue;
             } 
             
 
@@ -251,14 +358,17 @@ void aux4(const vector<vector<int>>& adj,
                 if (last_source >= 2){
                     if (xz == w1 && xz == w2){
                         if (!(x > y && x > z)){
+                            // cout << string(depth, '-') << "brafdfdnch cut non optimal last third " << x << endl;
                             continue;
                         }
                     }
                     if (xz == mw && xz == w1){
                         if (!(x > z)){
+                            // cout << string(depth, '-') << "braaaaaaanch cut non optimal last third " << x << endl;
                             continue;
                         }
                     } else if ( xz == mw && xz == w2 && !(x > y)){
+                        // cout << string(depth, '-') << "branch cut non opfdfdfdtimal last third " << x << endl;
                         continue;
                     }
                 }
@@ -331,17 +441,18 @@ void aux4(const vector<vector<int>>& adj,
             // }
 
 
-            int s = 0;
+            int sum = 0;
             bool optimal = true;
-            for (int j = order.size()-1;  j >= 0; --j){
+            int jmin = ((int)(order.size()) - 50 >= 0) ? order.size() - 50 : 0;
+            for (int j = order.size()-1;  j >= jmin; --j){
                 int y = order[j];
                 int xy = pair_crossings[x][y] - pair_crossings[y][x];
                 if (xy > 0){
-                    s -= xy;
+                    sum -= xy;
                 } else if (xy < 0){
-                    s += -xy;
+                    sum += -xy;
                 }
-                if (s < 0) {
+                if (sum < 0) {
                     optimal = false;
                     break;
                 }
@@ -357,11 +468,12 @@ void aux4(const vector<vector<int>>& adj,
             
 
             int new_current_bad_cr = current_bad_cr + x_bad_cr;
-
+            
 
             
-            // cout << string(depth, '-') << "branch " << x << " in neighbors: ";
+            // cout << string(depth, '-') << "branch " << x << " " << x_bad_cr << " "<< new_current_bad_cr <<  " in neighbors: ";
             // print(in_neighbors[x]);
+            // print(in_weights);
 
             
 
@@ -385,28 +497,55 @@ void aux4(const vector<vector<int>>& adj,
             // vector<int> x_in_neighbors = in_neighbors[x];
             // vector<int> x_out_neighbors = out_neighbors[x];
 
-            vector<int> new_to_do;
-            for (const int& y: to_do){
-                if (y != x)
-                    new_to_do.push_back(y);
-            }
+            // vector<int> new_to_do;
+            // for (const int& y: to_do){
+            //     if (y != x)
+            //         new_to_do.push_back(y);
+            // }
+
+            
+            sources.clear();
+            // vector<int> sources2;
 
             for (const int& v: out_neighbors[x]){
-                if (mask[v])
+                if (mask[v]){
                     in_weights[v] -= pair_crossings[x][v] - pair_crossings[v][x];
+                    if (in_weights[v] == 0){
+                        if (pos[v] == s-1){
+                            sources.push_back(i); // because of the swap
+                        } else {
+                            sources.push_back(pos[v]);
+                        }
+                    }
+                }
             }
+
+            // cout << "--- branch " << "x="<<  x << " i=" << i <<  endl;
+            // print(sources);
 
             order.push_back(x);
             mask[x] = false;
             // in_neighbors[x] = {};
             // out_neighbors[x] = {};
+            
+            pos[to_do[s-1]] = i;
+            pos[to_do[i]] = s-1;
 
-            aux4(adj, twins, new_to_do, order, best_order, best_bad_cr, new_current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, 0, excluded, triangles, in_weights, last_source+1);
+            swap(to_do[i], to_do[s-1]);
+
+
+            aux4(adj, twins, to_do, s-1, order, best_order, best_bad_cr, new_current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, 0, excluded, triangles, in_weights, last_source+1, sources, pos);
+
+            swap(to_do[i], to_do[s-1]);
+            pos[to_do[s-1]] = s-1;
+            pos[to_do[i]] = i;
 
             order.pop_back();
             mask[x] = true;
             // in_neighbors[x] = x_in_neighbors;
             // out_neighbors[x] = x_out_neighbors;
+
+
 
             for (const int& v: out_neighbors[x]){
                 if (mask[v])
@@ -429,9 +568,11 @@ void aux4(const vector<vector<int>>& adj,
 int solver4(const vector<vector<int>>& adj, bool verbose) {
     if (verbose){
         cout << "############" << endl;
-        cout << "solver4 A" << endl;
+        cout << "solver4 E" << endl;
         cout << "nb vertices: " << adj.size() << endl;
     }
+
+    
 
    
     vector<vector<int>> pair_crossings = compute_pair_crossings(adj);
@@ -439,11 +580,13 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
     auto in_neighbors = digraph.first;
     auto out_neighbors = digraph.second;
     vector<vector<int>> twins = compute_twins(adj);
-    for (int i = 0; i < twins.size(); ++i){
-        print(twins[i]);
-    }
+    // for (int i = 0; i < twins.size(); ++i){
+    //     print(twins[i]);
+    // }
 
-    print_adj(adj);
+    // print_adj(adj);
+
+    // to_dot(out_neighbors, pair_crossings);
 
 
     int bad_cr_total = 0;
@@ -451,10 +594,15 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
     auto components = scc(digraph.second, digraph.first );
 
     for (int i = 0; i < components.size(); ++i){
+
+
         auto raw_component = components[i];
         if (raw_component.size() == 1) continue;
-        cout << endl;
-        cout << "compo " << i << "/" << components.size() << " size: " << raw_component.size() << endl;
+
+        if (verbose){
+            cout << endl;
+            cout << "compo " << i << "/" << components.size() << " size: " << raw_component.size() << endl;
+        }
         
         // Twin reduction
         vector<int> component;
@@ -475,12 +623,45 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
         cout << "reduced compo size: " << component.size() << endl;
         
 
-        vector<int> best_order = order_greedy_sequential_mask3(component, pair_crossings);
+        // Structure
         vector<bool> mask(adj.size(), false);
-
         for (const int&x: component){
             mask[x] = true;
         }
+
+        vector<vector<int>> sub_in_neighbors(in_neighbors.size());
+        for (const int& v: component){
+            for (const int& w: in_neighbors[v]){
+                if (mask[w]){
+                    sub_in_neighbors[v].push_back(w);
+                }
+            }
+        }
+        vector<vector<int>> sub_out_neighbors(out_neighbors.size());
+        for (const int& v: component){
+            for (const int& w: out_neighbors[v]){
+                if (mask[w]){
+                    sub_out_neighbors[v].push_back(w);
+                }
+            }
+        }
+
+        vector<int> in_weights(adj.size());
+        for( const int& x: component){
+            for (const int& v: sub_in_neighbors[x]){
+                in_weights[x] += pair_crossings[v][x] - pair_crossings[x][v];
+            }
+        }
+
+        // sort(component.begin(), component.end(), [&in_weights](auto a, auto b){
+        //     return in_weights[a] < in_weights[b];
+        // });
+
+
+        // Upper bound
+        vector<int> best_order = order_greedy_sequential_mask3(component, pair_crossings);
+
+        
 
         int lb = lower_bound_mask(pair_crossings, component);
         if (verbose){
@@ -510,33 +691,19 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
             cout << "initial best bad cr " << best_bad_cr << endl;
         }
 
-        vector<vector<int>> sub_in_neighbors(in_neighbors.size());
-        for (const int& v: component){
-            for (const int& w: in_neighbors[v]){
-                if (mask[w]){
-                    sub_in_neighbors[v].push_back(w);
-                }
-            }
-        }
-        vector<vector<int>> sub_out_neighbors(out_neighbors.size());
-        for (const int& v: component){
-            for (const int& w: out_neighbors[v]){
-                if (mask[w]){
-                    sub_out_neighbors[v].push_back(w);
-                }
-            }
-        }
+        
 
-        vector<int> in_weights(adj.size());
-        for( const int& x: component){
-            for (const int& v: sub_in_neighbors[x]){
-                in_weights[x] += pair_crossings[v][x] - pair_crossings[x][v];
-            }
+        int s = component.size();
+
+        vector<int> pos(adj.size());
+        for(int j=0; j < component.size(); ++j){
+            pos[component[j]] = j;
         }
-
-
+        
+        vector<int> sources;
         vector<int> order;
-        aux4(adj, twins, component, order, best_order, best_bad_cr, current_bad_cr, pair_crossings, sub_in_neighbors, sub_out_neighbors, mask, 0, triangles_adj, triangles_total, excluded, triangles, in_weights, adj.size());
+
+        aux4(adj, twins, component, s, order, best_order, best_bad_cr, current_bad_cr, pair_crossings, sub_in_neighbors, sub_out_neighbors, mask, 0, triangles_adj, triangles_total, excluded, triangles, in_weights, adj.size(), sources, pos);
 
         bad_cr_total += best_bad_cr;
 
