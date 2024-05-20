@@ -53,7 +53,7 @@ bool are_equal(const vector<int>& vec1, const vector<int>& vec2) {
  * @param path 
  * @return adjacencies 
  */
-vector<vector<int>> load_file(const std::string& path) {
+pair<vector<vector<int>>, int> load_file(const std::string& path) {
     std::string fileContent;
     std::ifstream fileStream(path);
 
@@ -74,6 +74,7 @@ vector<vector<int>> load_file(const std::string& path) {
     lineStream >> type >> ocr >> num1 >> num2 >> num3;
 
     vector<vector<int>> adj(num2, vector<int>());
+    // vector<int> corresp(adj.size());
 
     while (std::getline(fileStream, line)) {
         std::istringstream lineStream(line);
@@ -84,11 +85,14 @@ vector<vector<int>> load_file(const std::string& path) {
             // Insert element so that adj[x] is increasing
             auto it = std::upper_bound(adj[secondNumber - num1 - 1].begin(), adj[secondNumber - num1 - 1].end(), firstNumber - 1);
             adj[secondNumber - num1 - 1].insert(it, firstNumber - 1);
+            // corresp[secondNumber - num1 - 1] = secondNumber;
         }
     }
 
-    return adj;
+    return make_pair(adj, num1);
 }
+
+
 
 
 

@@ -58,7 +58,7 @@ void aux4(const vector<vector<int>>& adj,
 
     if (s == 0){
         if (current_bad_cr < best_bad_cr){
-            cout << "better " << current_bad_cr << "\n";
+            // cout << "better " << current_bad_cr << "\n";
             best_order = order;
             best_bad_cr = current_bad_cr;
             // if ( has_duplicates(best_order)){
@@ -565,14 +565,14 @@ void aux4(const vector<vector<int>>& adj,
     }
 }
 
-int solver4(const vector<vector<int>>& adj, bool verbose) {
+vector<int> solver4(const vector<vector<int>>& adj, bool verbose) {
     if (verbose){
         cout << "############" << endl;
         cout << "solver4 E" << endl;
         cout << "nb vertices: " << adj.size() << endl;
     }
 
-    
+    vector<int> final_order;
 
    
     vector<vector<int>> pair_crossings = compute_pair_crossings(adj);
@@ -597,8 +597,10 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
 
 
         auto raw_component = components[i];
-        if (raw_component.size() == 1) continue;
-
+        if (raw_component.size() == 1){
+            final_order.push_back(raw_component[0]);
+            continue;
+        }
         if (verbose){
             cout << endl;
             cout << "compo " << i << "/" << components.size() << " size: " << raw_component.size() << endl;
@@ -620,7 +622,9 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
             }
         }
 
-        cout << "reduced compo size: " << component.size() << endl;
+        if (verbose){
+            cout << "reduced compo size: " << component.size() << endl;
+        }
         
 
         // Structure
@@ -676,6 +680,12 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
                 cout << "min bad crossings: " << best_bad_cr << "\n";
                 cout << "min crossings: " << lb + best_bad_cr << "\n";
             }   
+
+            for (int j = 0; j < best_order.size(); ++j){
+                for (const int& twin: twins[best_order[j]]){
+                    final_order.push_back(twin);
+                }
+            }
             continue;
         }
 
@@ -712,10 +722,18 @@ int solver4(const vector<vector<int>>& adj, bool verbose) {
             cout << "min crossings: " << lb + best_bad_cr << "\n";
             print(best_order);
         }
+
+        for (int j = 0; j < best_order.size(); ++j){
+            for (const int& twin: twins[best_order[j]]){
+                final_order.push_back(twin);
+            }
+        }
     }
 
-    cout << bad_cr_total << endl;
+    if (verbose){
+        cout << "min bad crossings: " << bad_cr_total << endl;
+    }
 
     // return lb + best_bad_cr;
-    return bad_cr_total;
+    return final_order;
 }

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-vector<vector<int>> load_file(const string& pathName);
+pair<vector<vector<int>>, int> load_file(const string& pathName);
 void print_adj(const vector<vector<int>>& adj);
 void print(const vector<int> v);
 int lower_bound(const vector<vector<int>>& adj);

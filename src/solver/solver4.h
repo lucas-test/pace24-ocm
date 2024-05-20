@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int solver4(const vector<vector<int>>& adj, bool verbose);
+vector<int> solver4(const vector<vector<int>>& adj, bool verbose);
 
 
 

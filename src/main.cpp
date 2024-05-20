@@ -17,26 +17,39 @@
 
 using namespace std;
 
+
 void search_random(void);
 void compare_greedy_insertion_orders(const vector<vector<int>>& adj);
+pair<vector<vector<int>>, int> load_stdin() ;
 
 
 int main(int argc, char* argv[]) {
     
+
+    if (argc == 1){
+        pair<vector<vector<int>>, int> r = load_stdin();
+        vector<vector<int>> adj = r.first;
+        int num1 = r.second;
+
+        vector<int> final_order =  solver4(adj, false);
+
+        for (int i = 0; i < final_order.size(); ++i){
+            cout << final_order[i] + num1 + 1 << endl;
+        }
+
+        return 0;
+    } 
+
     // search_random();
 
 
-    if (argc != 2) {
-        cerr << "Usage: " << argv[0] << " <filename>\n";
-        return 1;
-    }
+    // cout << "\n" << argv[1] << endl;
 
-    cout << "\n" << argv[1] << endl;
-
-
-    vector<vector<int>> adj = load_file(argv[1]);
-
-    reduce_degree_0(adj);
+    pair<vector<vector<int>>, int> r = load_file(argv[1]);
+    vector<vector<int>> adj = r.first;
+    int num1 = r.second;
+    
+    // reduce_degree_0(adj);
     // cout << adj.size() << "\n";
 
 
@@ -123,12 +136,17 @@ int main(int argc, char* argv[]) {
     // cout << solver_bruteforce(adj, false) << endl;
     // cout << endl;
     
-    auto pair_crossings = compute_pair_crossings(adj);
-    auto digraph = compute_directed_graph(adj);
+    // auto pair_crossings = compute_pair_crossings(adj);
+    // auto digraph = compute_directed_graph(adj);
 
     // to_dot(digraph.second, pair_crossings);
     
-    cout << solver4(adj, true) << endl;
+    vector<int> final_order =  solver4(adj, false);
+
+    for (int i = 0; i < final_order.size(); ++i){
+        cout << final_order[i] + num1 + 1 << endl;
+    }
+
 
 
     // auto pair_crossings = compute_pair_crossings(adj);
@@ -304,4 +322,29 @@ void search_random(void){
             
         }
     }
+}
+
+
+
+pair<vector<vector<int>>, int> load_stdin() {
+    string line;
+    vector<vector<int>> adj;
+    int num1, num2, num3;
+    string type, ocr;
+
+    // First line contains num1, num2, num3
+    cin >> type >> ocr >> num1 >> num2 >> num3;
+    adj.resize(num2, vector<int>());
+
+    // Read the rest of the input
+    while (getline(cin, line)) {
+        istringstream lineStream(line);
+        int firstNumber, secondNumber;
+        if (lineStream >> firstNumber >> secondNumber) {
+            auto it = upper_bound(adj[secondNumber - num1 - 1].begin(), adj[secondNumber - num1 - 1].end(), firstNumber - 1);
+            adj[secondNumber - num1 - 1].insert(it, firstNumber - 1);
+        }
+    }
+
+    return make_pair(adj, num1);
 }
