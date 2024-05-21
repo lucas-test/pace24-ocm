@@ -7,13 +7,13 @@
 #include <chrono>
 #include <unordered_set>
 
-#include "common.h"
-#include "solver1.h"
-#include "solver1b.h"
-#include "solver2.h"
-#include "solver3.h"
-#include "solver4.h"
-#include "solver_bruteforce.h"
+#include "solver/common.h"
+#include "solver/solver1.h"
+#include "solver/solver1b.h"
+#include "solver/solver2.h"
+#include "solver/solver3.h"
+#include "solver/solver4.h"
+#include "solver/solver_bruteforce.h"
 
 using namespace std;
 
@@ -24,198 +24,16 @@ pair<vector<vector<int>>, int> load_stdin() ;
 
 
 int main(int argc, char* argv[]) {
-    
 
-    if (argc == 1){
-        pair<vector<vector<int>>, int> r = load_stdin();
-        vector<vector<int>> adj = r.first;
-        int num1 = r.second;
-
-        vector<int> final_order =  solver4(adj, false);
-
-        for (int i = 0; i < final_order.size(); ++i){
-            cout << final_order[i] + num1 + 1 << endl;
-        }
-
-        return 0;
-    } 
-
-    // search_random();
-
-
-    // cout << "\n" << argv[1] << endl;
-
-    pair<vector<vector<int>>, int> r = load_file(argv[1]);
+    pair<vector<vector<int>>, int> r = load_stdin();
     vector<vector<int>> adj = r.first;
     int num1 = r.second;
-    
-    // reduce_degree_0(adj);
-    // cout << adj.size() << "\n";
 
-
-    // Solver1 test
-
-    // cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
-
-    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
-    //     return a.size() < b.size();
-    // });
-
-    //     cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
-
-
-    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
-    //     return a.size() > b.size();
-    // });
-
-    //     cout << "lol: " << nb_crossings(adj, greedy_sequential(adj)) << "\n";
-
-
-    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
-    //    if (a.empty() || b.empty()) {
-    //         return a.size() < b.size();
-    //     } else {
-    //         return *max_element(a.begin(), a.end()) > *max_element(b.begin(), b.end());
-    //     }
-    // });
-    // print_adj(adj);
-
-    
-
-
-    // Try to find a better greedy insertion order by starting with the triangles
-    // Not so much better ... or not better
-    // int lb = lower_bound(adj);
-    // cout<< "lb: " << lb << "\n";
-    // cout << "greedy lol: " << nb_crossings(adj, greedy_sequential(adj))-lb << "\n";
-
-    // list<vector<int>> triangles = find_disjoint_3cycles(adj);
-    // cout << "nb triangles: " << triangles.size() << "\n";
-
-    // vector<vector<int>> adj2;
-    // vector<int> seen(adj.size(), false);
-    // for (const auto& triangle : triangles){
-    //     adj2.push_back(adj[triangle[0]]);
-    //     adj2.push_back(adj[triangle[1]]);
-    //     adj2.push_back(adj[triangle[2]]);
-    //     seen[triangle[0]] = true;
-    //     seen[triangle[1]] = true;
-    //     seen[triangle[2]] = true;
-    // }
-    // for (int i = 0; i < seen.size(); ++i){
-    //     if (seen[i] == false){
-    //         adj2.push_back(adj[i]);
-    //     }
-    // }
-
-    // int greedy_inc_deg = nb_crossings(adj2, greedy_sequential(adj2));
-    // cout << "greedy lol: " << greedy_inc_deg-lb << "\n";
-
-    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
-    //     return a[0] < b[0];
-    // });
-
-    // auto digraph = compute_directed_graph(adj);
-    // auto compo = scc(digraph.second, digraph.first);
-
-    // print_adj(adj);
-
-
-    // for (int i = 0; i < compo.size(); ++i){
-    //     cout << i << ":";
-    //     for (int j = 0; j < compo[i].size(); ++j){
-    //         cout << compo[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
-    // print_adj(adj);
-    // vector<int> pos = greedy_sequential(adj);
-    // cout << lower_bound(adj)  << " " << nb_crossings(adj, pos) << endl;
-
-    // cout << solver_bruteforce(adj, false) << endl;
-    // cout << endl;
-    
-    // auto pair_crossings = compute_pair_crossings(adj);
-    // auto digraph = compute_directed_graph(adj);
-
-    // to_dot(digraph.second, pair_crossings);
-    
     vector<int> final_order =  solver4(adj, false);
 
     for (int i = 0; i < final_order.size(); ++i){
         cout << final_order[i] + num1 + 1 << endl;
     }
-
-
-
-    // auto pair_crossings = compute_pair_crossings(adj);
-    // auto digraph = compute_directed_graph(adj);
-    // to_dot(digraph.second, pair_crossings);
-
-    // search_random();
-
-    // auto pair_crossings = compute_pair_crossings(adj);
-    // auto digraph = compute_directed_graph(adj);
-    // vector<int> vertices;
-    // for (int i = 0; i < adj.size(); ++i){
-    //     vertices.push_back(i);
-    // }
-
-    // unordered_set<int> subvertices = {174,82,246,289,236,302,129,55,204,384,299,83,316,34,374,17,109,312,355,228,64,381,106,376,11,372,232};
-
-    // for (int i = 0; i < adj.size(); ++i){
-    //     if (subvertices.find(i) != subvertices.end()){
-    //         cout << i << " <- ";
-    //         for (int x: digraph.first[i]){
-    //             if (subvertices.find(x) != subvertices.end()){
-    //                 cout << x << " ";
-    //             }
-    //         }
-    //         cout << endl;
-    //         cout << i << " -> ";
-    //         for (int x: digraph.second[i]){
-    //             if (subvertices.find(x) != subvertices.end()){
-    //                 cout << x << " ";
-    //             }
-    //         }
-    //         cout << endl;
-    //     }
-    // }
-
-    // (pair_crossings, digraph.first, digraph.second, vertices);
-
-    // find_edge_disjoint_triangles(pair_crossings, digraph.first, digraph.second, vertices);
-
-    // list<vector<int>> triangles = find_disjoint_3cycles(adj);
-    // int triangles_total = 0;
-    // for (const auto& triangle: triangles){
-    //     triangles_total += triangle[3];
-    // }
-    // cout << "triangles: " << triangles.size() << " total: " << triangles_total << "\n";
-
-    // // Sort by increasing degree
-    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
-    //     return a.size() < b.size();
-    // });
-    // int greedy_inc_deg = nb_crossings(adj, greedy_sequential(adj));
-    // cout << "greedy increasing degree: " << greedy_inc_deg << "\n";
-
-    // // Sort by decreasing degree
-    // sort(adj.begin(), adj.end(), [](const vector<int>& a, const vector<int>& b) {
-    //     return a.size() > b.size();
-    // });
-    // vector<int> greedy_dec_deg_pos = greedy_sequential(adj);
-    // int greedy_dec_deg = nb_crossings(adj, greedy_sequential(adj));
-    // cout << "greedy decreasing degree: " << greedy_dec_deg << "\n";
-    
-    // vector<int> greedy_dec_deg_order(greedy_dec_deg_pos.size());
-    // for (int i = 0; i < greedy_dec_deg_pos.size(); i++) {
-    //     greedy_dec_deg_order[greedy_dec_deg_pos[i]] = i ;
-    // }
-    // int greedy_dec_deg_order_nc = nb_crossings_from_order(adj, greedy_dec_deg_order);
-    // cout << "greedy decreasing degree order: " << greedy_dec_deg_order_nc << "\n";
-
 
     return 0;
 }
@@ -325,19 +143,26 @@ void search_random(void){
 }
 
 
-
 pair<vector<vector<int>>, int> load_stdin() {
     string line;
     vector<vector<int>> adj;
     int num1, num2, num3;
     string type, ocr;
 
+    getline(cin, line);
+    while (!line.empty() && line[0] == 'c') {
+        getline(cin, line);
+    }
+
     // First line contains num1, num2, num3
-    cin >> type >> ocr >> num1 >> num2 >> num3;
+    istringstream lineStream(line);
+    lineStream >> type >> ocr >> num1 >> num2 >> num3;
     adj.resize(num2, vector<int>());
 
     // Read the rest of the input
     while (getline(cin, line)) {
+        if (!line.empty() && line[0] == 'c') continue;
+
         istringstream lineStream(line);
         int firstNumber, secondNumber;
         if (lineStream >> firstNumber >> secondNumber) {

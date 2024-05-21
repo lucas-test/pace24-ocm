@@ -62,10 +62,11 @@ pair<vector<vector<int>>, int> load_file(const std::string& path) {
         return {};
     }
 
-    std::string line;
-    std::getline(fileStream, line);
-    if (line.empty()) {
-        return {};
+    string line;
+
+    getline(fileStream, line);
+    while (!line.empty() && line[0] == 'c') {
+        getline(fileStream, line);
     }
 
     std::istringstream lineStream(line);
@@ -77,6 +78,10 @@ pair<vector<vector<int>>, int> load_file(const std::string& path) {
     // vector<int> corresp(adj.size());
 
     while (std::getline(fileStream, line)) {
+        if (!line.empty() && line[0] == 'c'){
+            continue;
+        }
+
         std::istringstream lineStream(line);
         int firstNumber, secondNumber;
         if (lineStream >> firstNumber >> secondNumber) {
