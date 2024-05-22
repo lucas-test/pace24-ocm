@@ -39,7 +39,9 @@ void aux4(const vector<vector<int>>& adj,
     const vector<vector<int>>& out_neighbors, 
     vector<bool>& mask, 
     int depth, 
-    vector<vector<int>>& triangles_adj, 
+    const vector<vector<int>>& triangles_adj, 
+    const vector<int>& triangles_weight,
+    vector<bool>& triangles_available,
     int triangles_total,
     vector<bool>& excluded,
     const vector<vector<vector<int>>>& triangles,
@@ -67,6 +69,10 @@ void aux4(const vector<vector<int>>& adj,
             // }
         }
     } else {
+
+        if (current_bad_cr + triangles_total >= best_bad_cr){
+            return;
+        }
 
         // if (best_bad_cr - current_bad_cr <= 30){
         //     vector<int> t(to_do.size(), numeric_limits<int>::max());
@@ -231,7 +237,7 @@ void aux4(const vector<vector<int>>& adj,
             }
 
 
-            aux4(adj, twins, to_do, s- sources.size(), order, best_order, best_bad_cr, current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, 0, excluded, triangles, in_weights, 0, sources2, pos);
+            aux4(adj, twins, to_do, s- sources.size(), order, best_order, best_bad_cr, current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, triangles_weight, triangles_available, triangles_total, excluded, triangles, in_weights, 0, sources2, pos);
 
             for (int j = 0; j < sources.size(); ++j){
                 int k = sources[j];
@@ -272,6 +278,7 @@ void aux4(const vector<vector<int>>& adj,
         }
        
 
+        vector<int> triangles_to_reinsert;
 
         // Branch on to_do
         // cout << "branch " << to_do.size() << "\n";
@@ -478,6 +485,16 @@ void aux4(const vector<vector<int>>& adj,
             // cout << "--- branch " << "x="<<  x << " i=" << i <<  endl;
             // print(sources);
 
+            triangles_to_reinsert.clear();
+            int new_triangles_total = triangles_total;
+            for (const int& triangle_id: triangles_adj[x]){
+                if (triangles_available[triangle_id]){
+                    new_triangles_total -= triangles_weight[triangle_id];
+                    triangles_available[triangle_id] = false;
+                    triangles_to_reinsert.push_back(triangle_id);
+                }
+            }
+
             order.push_back(x);
             mask[x] = false;
             // in_neighbors[x] = {};
@@ -488,8 +505,10 @@ void aux4(const vector<vector<int>>& adj,
 
             swap(to_do[i], to_do[s-1]);
 
+        
 
-            aux4(adj, twins, to_do, s-1, order, best_order, best_bad_cr, new_current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, 0, excluded, triangles, in_weights, last_source+1, sources, pos);
+
+            aux4(adj, twins, to_do, s-1, order, best_order, best_bad_cr, new_current_bad_cr, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, triangles_weight, triangles_available, new_triangles_total, excluded, triangles, in_weights, last_source+1, sources, pos);
 
             swap(to_do[i], to_do[s-1]);
             pos[to_do[s-1]] = s-1;
@@ -500,7 +519,9 @@ void aux4(const vector<vector<int>>& adj,
             // in_neighbors[x] = x_in_neighbors;
             // out_neighbors[x] = x_out_neighbors;
 
-
+            for (const int& triangle_id: triangles_to_reinsert){
+                triangles_available[triangle_id] = true;
+            }
 
             for (const int& v: out_neighbors[x]){
                 if (mask[v])
@@ -644,11 +665,33 @@ vector<int> solver4(const vector<vector<int>>& adj, bool verbose) {
             continue;
         }
 
-        // Triangles
-        int triangles_total = 0;
-        vector<vector<int>> triangles_adj(adj.size());
-        vector<vector<vector<int>>> triangles(adj.size());
+        // Obsolete and useless
         vector<bool> excluded(adj.size(), false);
+
+        // Triangles
+        vector<vector<vector<int>>> triangles(adj.size());
+        auto r = find_edge_disjoint_triangles_greedy3(pair_crossings, sub_in_neighbors, sub_out_neighbors, component);
+        vector<vector<int>> triangles_adj = r.first;
+        vector<int> triangles_weight = r.second;
+        vector<bool> triangles_available(triangles_weight.size(), true);
+
+        int triangles_total = 0;
+        for (const int& w: triangles_weight){
+            triangles_total += w;
+        }
+
+        if (verbose){
+            cout << "triangles: " << triangles_weight.size() << " total_weight: " << triangles_total << endl;
+        }
+        // for (const int& x: component){
+        //     cout << "triangles_adj[" << x << "] ";
+        //     print(triangles_adj[x]);
+        // }
+        // for (int j = 0; j < triangles_weight.size(); ++j){
+        //     printf("triangles_weight[%d] %d\n", j, triangles_weight[j]);
+        // }
+
+
 
         int current_bad_cr = 0;
 
@@ -668,7 +711,7 @@ vector<int> solver4(const vector<vector<int>>& adj, bool verbose) {
         vector<int> sources;
         vector<int> order;
 
-        aux4(adj, twins, component, s, order, best_order, best_bad_cr, current_bad_cr, pair_crossings, sub_in_neighbors, sub_out_neighbors, mask, 0, triangles_adj, triangles_total, excluded, triangles, in_weights, adj.size(), sources, pos);
+        aux4(adj, twins, component, s, order, best_order, best_bad_cr, current_bad_cr, pair_crossings, sub_in_neighbors, sub_out_neighbors, mask, 0, triangles_adj, triangles_weight, triangles_available, triangles_total, excluded, triangles, in_weights, adj.size(), sources, pos);
 
         bad_cr_total += best_bad_cr;
 

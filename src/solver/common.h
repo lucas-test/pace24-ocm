@@ -46,6 +46,8 @@ pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles(const vector
 int find_edge_disjoint_cycles(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
 
+pair<vector<vector<int>>, vector<int>> find_edge_disjoint_triangles_greedy3(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices);
+
 pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy2(
     const vector<bool>& mask,
     const vector<int>& vertices,

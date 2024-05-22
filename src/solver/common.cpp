@@ -1324,6 +1324,76 @@ pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy(const
     return make_pair(total, triangles_adj);
 }
 
+/**
+ * Same algo as greedy1 but returns a different structure.
+ * vector<vector<int>> triangles_adj[x] contains the array of the triangle_ids adjacent to x
+ * vector<int> triangles_weight[tid] is the weight of triangle having id = tid
+*/
+pair<vector<vector<int>>, vector<int>> find_edge_disjoint_triangles_greedy3(const vector<vector<int>>& pair_crossings, const vector<vector<int>>& in_neighbors, const vector<vector<int>>& out_neighbors, const vector<int>& vertices){
+    vector<vector<bool>> used(pair_crossings.size());
+    for (int i= 0; i < used.size(); ++i){
+        used[i] = vector<bool>(pair_crossings.size(), false);
+    }
+    vector<vector<int>> triangles_adj(pair_crossings.size());
+    vector<int> triangles_weight;
+    int triangle_id = 0;
+
+
+
+    for (const int& x: vertices){
+
+        vector<int> x_in_neighbors = in_neighbors[x];
+        sort(x_in_neighbors.begin(), x_in_neighbors.end(), [&pair_crossings, &x](int a, int b) {
+            return pair_crossings[a][x] - pair_crossings[x][a] > pair_crossings[b][x] - pair_crossings[x][b];
+        });
+
+        for (const int& y: x_in_neighbors){
+            if (used[x][y]) continue;
+            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+
+            int bestz = -1;
+            int best_w = 0;
+
+            for (const int& z: out_neighbors[x]){
+                if (used[x][y] || used[x][z] || used[y][z]) continue;
+                int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                if (zy > 0 ){
+                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                    int weight = min(min(yx, xz),zy);
+
+                    if (weight > best_w){
+                        bestz = z;
+                        best_w = weight;
+                    }
+                }
+            }
+
+            if (bestz >= 0){
+                int z = bestz;
+                int weight = best_w;
+                // triangle y > x -> z -> y
+                used[x][y] = true;
+                used[y][x] = true;
+                used[x][z] = true;
+                used[z][x] = true;
+                used[z][y] = true;
+                used[y][z] = true;
+                // triangles.push_back({x,z,y});
+                // printf("triangle %d: %d %d %d\n", weight, x, y, z);
+                triangles_adj[x].push_back(triangle_id);
+                triangles_adj[y].push_back(triangle_id);
+                triangles_adj[z].push_back(triangle_id);
+                triangles_weight.push_back(weight);
+                triangle_id ++;
+
+            }
+            
+        }
+    }
+    return make_pair(triangles_adj, triangles_weight);
+}
+
+
 
 
 pair<int, vector<vector<vector<int>>>> find_edge_disjoint_triangles_greedy2(

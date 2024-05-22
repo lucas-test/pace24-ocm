@@ -25,17 +25,32 @@ pair<vector<vector<int>>, int> load_stdin() ;
 
 int main(int argc, char* argv[]) {
 
-    pair<vector<vector<int>>, int> r = load_stdin();
-    vector<vector<int>> adj = r.first;
-    int num1 = r.second;
 
-    vector<int> final_order =  solver4(adj, false);
+    bool DEBUG = true;
 
-    for (int i = 0; i < final_order.size(); ++i){
-        cout << final_order[i] + num1 + 1 << endl;
+
+    if (DEBUG){
+        pair<vector<vector<int>>, int> r = load_stdin();
+        vector<vector<int>> adj = r.first;
+        int num1 = r.second;
+
+        vector<int> final_order =  solver4(adj, true);
+
+        return 0;   
+
+    } else {
+        pair<vector<vector<int>>, int> r = load_stdin();
+        vector<vector<int>> adj = r.first;
+        int num1 = r.second;
+
+        vector<int> final_order =  solver4(adj, false);
+
+        for (int i = 0; i < final_order.size(); ++i){
+            cout << final_order[i] + num1 + 1 << endl;
+        }
+
+        return 0;
     }
-
-    return 0;
 }
 
 

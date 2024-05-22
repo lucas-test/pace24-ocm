@@ -7,5 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB SOURCES "*.cpp" "solver/*.cpp")
 
+# For optimization
+set(CMAKE_BUILD_TYPE Release)
+
 # Add the executable with all.cpp files
 add_executable(${PROJECT_NAME} ${SOURCES})

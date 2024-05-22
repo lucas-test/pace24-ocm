@@ -1,3 +1,8 @@
 .vscode
 bin
 build
+src/CMakeFiles
+src/CMakeCache.txt
+src/main.tgz
+src/cmake_install.cmake
+src/main
