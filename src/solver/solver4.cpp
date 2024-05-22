@@ -152,15 +152,6 @@ void aux4(const vector<vector<int>>& adj,
             // cout << "sources ";
             // print(sources);
 
-            // vector<int> sources;
-
-            // for (int i = 0; i < to_do.size(); ++i){
-            //     int x = to_do[i];
-            //     if (in_weights[x] > 0){
-            //         break;
-            //     }
-            //     sources.push_back(x);
-            // }
 
             // cout << string(depth, '-') << "sources ";
             // print(sources);
@@ -195,10 +186,6 @@ void aux4(const vector<vector<int>>& adj,
             //         new_to_do.push_back(y);
             // }
 
-            // if ( has_duplicates(sources)){
-            //     cout << "sources has duplicates" << endl;
-            //     print(sources);
-            // }
 
             int sources_size = sources.size();
             vector<int> sources2;
@@ -207,32 +194,6 @@ void aux4(const vector<vector<int>>& adj,
             for (const int& id: sources){
                 sources_values.push_back(to_do[id]);
             }
-
-            // for (const int& j: sources){
-            //     int y = to_do[j];
-            //     for (const int& z: out_neighbors[y]){
-            //         if (mask[z]){
-            //             in_weights[z] -= pair_crossings[y][z] - pair_crossings[z][y];
-            //             if (in_weights[z] == 0){
-            //                 s2v.push_back(z);
-            //                 int jj = pos[z] - s + sources_size;
-            //                 if( 0 <= jj && jj < sources_size){
-            //                     sources2.push_back(sources[jj]);
-            //                 } else {
-                                
-            //                     sources2.push_back(pos[z]);
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-
-            // for (int j = 0; j < to_do.size(); ++j){
-            //     if (mask[to_do[j]] && pos[to_do[j]] != j){
-            //         cout << "BUGGGGGGGGGGGG" << endl;
-            //     }
-            // }
-
 
 
 
@@ -355,6 +316,7 @@ void aux4(const vector<vector<int>>& adj,
                     continue;
                 }
 
+                
                 if (last_source >= 2){
                     if (xz == w1 && xz == w2){
                         if (!(x > y && x > z)){
@@ -372,6 +334,7 @@ void aux4(const vector<vector<int>>& adj,
                         continue;
                     }
                 }
+                
             }
 
             if (order.size() >= 3){
@@ -393,52 +356,44 @@ void aux4(const vector<vector<int>>& adj,
                     continue;
                 }
 
-                if ( last_source >= 3 && ca >= 0 && xb >= 0 && bc == ca + (xb + xa)){
-                    continue;
-                }
-
+                int ab = pair_crossings[a][b] - pair_crossings[b][a]; 
                 int cx = pair_crossings[c][x] - pair_crossings[x][c];
-                if ( ca <= 0 && xb >= 0  && cx <  xb + xa ){
-                    // cout << string(depth, '-') << "branch cut non optimal last fourth " << x << endl;
+                
 
-                    // cout << string(depth, '-') << "branch cut non optimal last third " << x << endl;
-                    // c x a b or c a x b is better than a b c x and has only one BA: bc
-                    // we are sure that there are arcs ab bc and cd
-                    continue;
+                if ( last_source >= 3 && ab > 0 && bc > 0 && cx > 0 &&
+                ca > 0 && xb > 0 && xa > 0 &&
+                  bc == ca + (xb + xa)){
+                     continue;
                 }
-
-                // if (last_source >= 3 && ca <= 0 && xb > 0 && xa > 0 && cx == xb + xa){
-                //     continue;
-                // }
             }
 
-            // if (order.size() >= 4){
-            //     int a = order[order.size()-4];
-            //     int b = order[order.size()-3];
-            //     int c = order[order.size()-2];
-            //     int d = order[order.size()-1];
+            if (order.size() >= 4){
+                int a = order[order.size()-4];
+                int b = order[order.size()-3];
+                int c = order[order.size()-2];
+                int d = order[order.size()-1];
 
-            //     int db = pair_crossings[d][b] - pair_crossings[b][d];
-            //     int ca = pair_crossings[c][a] - pair_crossings[a][c];
-            //     // int xa = pair_crossings[x][a] - pair_crossings[a][x];
-            //     int xc = pair_crossings[x][c] - pair_crossings[c][x];
-            //     int ax = pair_crossings[a][x] - pair_crossings[x][a];
+                int db = pair_crossings[d][b] - pair_crossings[b][d];
+                int ca = pair_crossings[c][a] - pair_crossings[a][c];
+                // int xa = pair_crossings[x][a] - pair_crossings[a][x];
+                int xc = pair_crossings[x][c] - pair_crossings[c][x];
+                int ax = pair_crossings[a][x] - pair_crossings[x][a];
 
-            //     int cd = pair_crossings[c][d] - pair_crossings[d][c];
+                int cd = pair_crossings[c][d] - pair_crossings[d][c];
 
-            //     int xb = pair_crossings[x][b] - pair_crossings[b][x];
-            //     if (xb < 0) xb = 0;
-            //     int da = pair_crossings[d][a] - pair_crossings[a][d];
-            //     if (da < 0) da = 0;
+                int xb = pair_crossings[x][b] - pair_crossings[b][x];
+                if (xb < 0) xb = 0;
+                int da = pair_crossings[d][a] - pair_crossings[a][d];
+                if (da < 0) da = 0;
 
-            //     if (ax >= 0 && db >= 0 && ca >= 0 && xc >= 0 && ca + cd < db + ca + xc + (xb + da)){
-            //         // a b c d x is not optimal
-            //         // (a d) (b x) c is better (paranthesis indicates that we can swap a and d depending on the arc ad)
-            //         // same with bx
-            //         continue;
-            //     }
+                if (ax >= 0 && db >= 0 && ca >= 0 && xc >= 0 && ca + cd < db + ca + xc + (xb + da)){
+                    // a b c d x is not optimal
+                    // (a d) (b x) c is better (paranthesis indicates that we can swap a and d depending on the arc ad)
+                    // same with bx
+                    continue;
+                }
 
-            // }
+            }
 
 
             int sum = 0;
