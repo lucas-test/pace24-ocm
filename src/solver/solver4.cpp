@@ -13,7 +13,22 @@
 using namespace std;
 
 
-
+pair<vector<int>,int> iterative_greedy_order(const vector<int>& component, const vector<vector<int>>& pair_crossings, int lb){
+    vector<int> order = order_greedy_sequential_mask3(component, pair_crossings);
+    int bad_cr = nb_crossings_from_order2(order, pair_crossings) - lb;
+    // cout << "init bad cr: " << bad_cr << "\n";
+    while (true){
+        vector<int> new_order = order_greedy_sequential_mask3(order, pair_crossings);
+        int new_bad_cr = nb_crossings_from_order2(new_order, pair_crossings) - lb;
+        if (new_bad_cr < bad_cr){
+            order = new_order;
+            bad_cr = new_bad_cr;
+            // cout << "better bad cr: " << bad_cr << "\n";
+        } else {
+            return make_pair(order, bad_cr);
+        }
+    }
+}
 
 
 
@@ -35,6 +50,7 @@ void aux4(const vector<vector<int>>& adj,
     int& best_bad_cr, 
     int& current_bad_cr, 
     const vector<vector<int>>& pair_diff, 
+    const vector<vector<int>>& pair_crossings,
     const vector<vector<int>>& in_neighbors,
     const vector<vector<int>>& out_neighbors, 
     vector<bool>& mask, 
@@ -60,9 +76,16 @@ void aux4(const vector<vector<int>>& adj,
 
     if (s == 0){
         if (current_bad_cr < best_bad_cr){
-            cout << "better " << current_bad_cr << "\n";
+            // cout << "better " << current_bad_cr << "\n";
             best_order = order;
             best_bad_cr = current_bad_cr;
+
+            int lb = lower_bound_mask(pair_crossings, best_order);
+
+            auto r = iterative_greedy_order(best_order, pair_crossings, lb);
+            best_order = r.first;
+            best_bad_cr = r.second;
+
             // if ( has_duplicates(best_order)){
             //     cout << "order has duplicates" << endl;
             //     print(order);
@@ -237,7 +260,7 @@ void aux4(const vector<vector<int>>& adj,
             }
 
 
-            aux4(adj, twins, to_do, s- sources.size(), order, best_order, best_bad_cr, current_bad_cr, pair_diff, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, triangles_weight, triangles_available, triangles_total, excluded, triangles, in_weights, 0, sources2, pos);
+            aux4(adj, twins, to_do, s- sources.size(), order, best_order, best_bad_cr, current_bad_cr, pair_diff, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, triangles_weight, triangles_available, triangles_total, excluded, triangles, in_weights, 0, sources2, pos);
 
             for (int j = 0; j < sources.size(); ++j){
                 int k = sources[j];
@@ -280,10 +303,25 @@ void aux4(const vector<vector<int>>& adj,
 
         vector<int> triangles_to_reinsert;
 
+        // vector<int> to_do2;
+        // for (int i = 0; i < s; ++i){
+        //     to_do2.push_back(to_do[i]);
+        // }
+        // sort(to_do2.begin(), to_do2.end(), [&in_weights](int a, int b){
+        //     return in_weights[a] < in_weights[b];
+        // });
+
+        
+        
+
         // Branch on to_do
         // cout << "branch " << to_do.size() << "\n";
-        for (int i = 0; i < s; ++i){
-            int x = to_do[i];
+        for (int ii = 0; ii < s; ++ii){
+
+            // int ix = pos[to_do2[ii]];
+            int ix = ii;
+
+            int x = to_do[ix];
             // if (excluded[x]){
             //     // cout << string(depth, '-') << "branch exclude " << x << endl;
             //     continue;
@@ -366,6 +404,9 @@ void aux4(const vector<vector<int>>& adj,
                 int ab = pair_diff[a][b] ; 
                 int cx = pair_diff[c][x] ;
                 
+                if (last_source >= 3 && bc == ca + (xb + xa) && (xb >0 || (xb == 0 && x < b)  ) ){
+                    continue;
+                }
 
                 if ( last_source >= 3 && ab > 0 && bc > 0 && cx > 0 &&
                 ca > 0 && xb > 0 && xa > 0 &&
@@ -415,8 +456,11 @@ void aux4(const vector<vector<int>>& adj,
                     sum += -xy;
                 }
                 if (sum < 0) {
+                    if (-sum > in_weights[x]){
+                        return;
+                    }
                     optimal = false;
-                    break;
+                    // break;
                 }
             }
             if (optimal == false){
@@ -474,7 +518,7 @@ void aux4(const vector<vector<int>>& adj,
                     in_weights[v] -= pair_diff[x][v];
                     if (in_weights[v] == 0){
                         if (pos[v] == s-1){
-                            sources.push_back(i); // because of the swap
+                            sources.push_back(ix); // because of the swap
                         } else {
                             sources.push_back(pos[v]);
                         }
@@ -500,19 +544,19 @@ void aux4(const vector<vector<int>>& adj,
             // in_neighbors[x] = {};
             // out_neighbors[x] = {};
             
-            pos[to_do[s-1]] = i;
-            pos[to_do[i]] = s-1;
+            pos[to_do[s-1]] = ix;
+            pos[to_do[ix]] = s-1;
 
-            swap(to_do[i], to_do[s-1]);
+            swap(to_do[ix], to_do[s-1]);
 
         
 
 
-            aux4(adj, twins, to_do, s-1, order, best_order, best_bad_cr, new_current_bad_cr, pair_diff, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, triangles_weight, triangles_available, new_triangles_total, excluded, triangles, in_weights, last_source+1, sources, pos);
+            aux4(adj, twins, to_do, s-1, order, best_order, best_bad_cr, new_current_bad_cr, pair_diff, pair_crossings, in_neighbors, out_neighbors, mask, depth+1, triangles_adj, triangles_weight, triangles_available, new_triangles_total, excluded, triangles, in_weights, last_source+1, sources, pos);
 
-            swap(to_do[i], to_do[s-1]);
+            swap(to_do[ix], to_do[s-1]);
             pos[to_do[s-1]] = s-1;
-            pos[to_do[i]] = i;
+            pos[to_do[ix]] = ix;
 
             order.pop_back();
             mask[x] = true;
@@ -641,24 +685,39 @@ vector<int> solver4(const vector<vector<int>>& adj, bool verbose) {
 
 
         // Upper bound
-        vector<int> greedy_order_natural = order_greedy_sequential_mask3(component, pair_crossings);
-        int natural_bad_cr = nb_crossings_from_order2(greedy_order_natural, pair_crossings) - lb;
+        // vector<int> greedy_order_natural = order_greedy_sequential_mask3(component, pair_crossings);
+        // int natural_bad_cr = nb_crossings_from_order2(greedy_order_natural, pair_crossings) - lb;
+        // cout << "natural bad cr: " << natural_bad_cr << "\n";
+        
+        auto r_natural = iterative_greedy_order(component, pair_crossings, lb);
+        vector<int> greedy_order_natural = r_natural.first;
+        int natural_bad_cr = r_natural.second;
+        if (verbose)
         cout << "natural bad cr: " << natural_bad_cr << "\n";
+
 
         // Decreasing degree
         sort(component.begin(), component.end(), [&adj](auto a, auto b){
             return adj[a].size() > adj[b].size();
         });
-        vector<int> greedy_order_DD = order_greedy_sequential_mask3(component, pair_crossings);
-        int DD_bad_cr = nb_crossings_from_order2(greedy_order_DD, pair_crossings) - lb;
-        cout << "decreasing degree bad cr: " << DD_bad_cr << "\n";
+        // vector<int> greedy_order_DD = order_greedy_sequential_mask3(component, pair_crossings);
+        // int DD_bad_cr = nb_crossings_from_order2(greedy_order_DD, pair_crossings) - lb;
+        // cout << "decreasing degree bad cr: " << DD_bad_cr << "\n";
+
+        auto r_DD = iterative_greedy_order(component, pair_crossings, lb);
+        vector<int> greedy_order_DD = r_DD.first;
+        int DD_bad_cr = r_DD.second;
+        if (verbose)
+        cout << "decr degree bad cr: " << DD_bad_cr << "\n";
 
         // Increasing indegree
         sort(component.begin(), component.end(), [&sub_in_neighbors](auto a, auto b){
             return sub_in_neighbors[a].size() < sub_in_neighbors[b].size();
         });
-        vector<int> greedy_order_incr_indegree = order_greedy_sequential_mask3(component, pair_crossings);
-        int incr_indegree_bad_cr = nb_crossings_from_order2(greedy_order_incr_indegree, pair_crossings) - lb;
+        auto r_II = iterative_greedy_order(component, pair_crossings, lb);
+        vector<int> greedy_order_incr_indegree = r_II.first;
+        int incr_indegree_bad_cr = r_II.second;
+        if (verbose)
         cout << "incr indegree bad cr: " << incr_indegree_bad_cr << "\n";
 
         // Increasing rightmost adjacency
@@ -667,6 +726,7 @@ vector<int> solver4(const vector<vector<int>>& adj, bool verbose) {
         });
         vector<int> greedy_order_IRA = order_greedy_sequential_mask3(component, pair_crossings);
         int IRA_bad_cr = nb_crossings_from_order2(greedy_order_IRA, pair_crossings) - lb;
+        if (verbose)
         cout << "incr rightmost adjacency bad cr: " << IRA_bad_cr << "\n";
 
         // Increasing total in-weights
@@ -766,7 +826,7 @@ vector<int> solver4(const vector<vector<int>>& adj, bool verbose) {
             }
         }
 
-        aux4(adj, twins, component, s, order, best_order, best_bad_cr, current_bad_cr, pair_diff, sub_in_neighbors, sub_out_neighbors, mask, 0, triangles_adj, triangles_weight, triangles_available, triangles_total, excluded, triangles, in_weights, adj.size(), sources, pos);
+        aux4(adj, twins, component, s, order, best_order, best_bad_cr, current_bad_cr, pair_diff, pair_crossings, sub_in_neighbors, sub_out_neighbors, mask, 0, triangles_adj, triangles_weight, triangles_available, triangles_total, excluded, triangles, in_weights, adj.size(), sources, pos);
 
         bad_cr_total += best_bad_cr;
 

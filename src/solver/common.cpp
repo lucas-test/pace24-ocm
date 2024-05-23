@@ -1390,6 +1390,51 @@ pair<vector<vector<int>>, vector<int>> find_edge_disjoint_triangles_greedy3(cons
             
         }
     }
+
+
+    for (const int& x: vertices){
+        for (const int& y: vertices){
+            if (x==y) continue;
+
+            for (const int& z: out_neighbors[x]){
+                if (used[z][x] || used[z][y]) continue;
+                int zy = pair_crossings[z][y] - pair_crossings[y][z];
+                if (zy > 0){
+                    for (const int& v: in_neighbors[x]){
+                        if (used[v][x] || used[y][v]) continue;
+                        int yv = pair_crossings[y][v] - pair_crossings[v][y];
+                        if (yv > 0){
+                            if (used[v][x] || used[y][v] || used[z][x] || used[z][y]) continue;
+                            used[x][z] = true;
+                            used[z][x] = true;
+                            used[z][y] = true;
+                            used[y][z] = true;
+                            used[y][v] = true;
+                            used[v][y] = true;
+                            used[v][x] = true;
+                            used[x][v] = true;
+                            // triangles.push_back({x,z,y});
+                            // printf("triangle %d: %d %d %d\n", weight, x, y, z);
+                            triangles_adj[x].push_back(triangle_id);
+                            triangles_adj[y].push_back(triangle_id);
+                            triangles_adj[z].push_back(triangle_id);
+                            triangles_adj[v].push_back(triangle_id);
+                            int weight = min(zy, yv);
+                            int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                            int vx = pair_crossings[v][x] - pair_crossings[x][v];
+                            weight = min(weight, min(xz, vx));
+                            triangles_weight.push_back(weight);
+                            triangle_id ++;
+
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+
     return make_pair(triangles_adj, triangles_weight);
 }
 
