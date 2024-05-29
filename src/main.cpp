@@ -24,8 +24,6 @@ pair<vector<vector<int>>, int> load_stdin() ;
 
 
 int main(int argc, char* argv[]) {
-
-
     bool DEBUG = false;
 
 

@@ -1338,101 +1338,285 @@ pair<vector<vector<int>>, vector<int>> find_edge_disjoint_triangles_greedy3(cons
     vector<int> triangles_weight;
     int triangle_id = 0;
 
+    vector<vector<int>> arcs;
+    for (const int& x:vertices){
+        for (const int& y: vertices){
+            if (x < y){
+                if (pair_crossings[x][y] - pair_crossings[y][x] >0){
+                    arcs.push_back({pair_crossings[x][y] - pair_crossings[y][x], x,y});
+                } else if (pair_crossings[y][x] - pair_crossings[x][y] >0){
+                    arcs.push_back({pair_crossings[y][x] - pair_crossings[x][y], y,x});
+                }
+            }
+        }
+    }
 
+    sort(arcs.begin(), arcs.end(), [](vector<int> a, vector<int>b){
+        return a[0] > b[0];
+    });
 
-    for (const int& x: vertices){
+    for (int i = 0; i < arcs.size(); ++i){
+        int y = arcs[i][1];
+        int x = arcs[i][2]; // y->x
+        int yx = arcs[i][0];
+        if (used[x][y]) continue;
 
-        vector<int> x_in_neighbors = in_neighbors[x];
-        sort(x_in_neighbors.begin(), x_in_neighbors.end(), [&pair_crossings, &x](int a, int b) {
-            return pair_crossings[a][x] - pair_crossings[x][a] > pair_crossings[b][x] - pair_crossings[x][b];
-        });
+        int bestz = -1;
+        int best_w = 0;
 
-        for (const int& y: x_in_neighbors){
-            if (used[x][y]) continue;
-            int yx = pair_crossings[y][x] - pair_crossings[x][y];
+        for (const int& z: out_neighbors[x]){
+            if (used[x][y] || used[x][z] || used[y][z]) continue;
+            int zy = pair_crossings[z][y] - pair_crossings[y][z];
+            if (zy > 0 ){
+                int xz = pair_crossings[x][z] - pair_crossings[z][x];
+                int weight = min(min(yx, xz),zy);
 
-            int bestz = -1;
-            int best_w = 0;
+                if (weight > best_w){
+                    bestz = z;
+                    best_w = weight;
+                }
+            }
+        }
 
-            for (const int& z: out_neighbors[x]){
-                if (used[x][y] || used[x][z] || used[y][z]) continue;
-                int zy = pair_crossings[z][y] - pair_crossings[y][z];
-                if (zy > 0 ){
-                    int xz = pair_crossings[x][z] - pair_crossings[z][x];
-                    int weight = min(min(yx, xz),zy);
+        if (bestz >= 0){
+            int z = bestz;
+            int weight = best_w;
+            // triangle y > x -> z -> y
+            used[x][y] = true;
+            used[y][x] = true;
+            used[x][z] = true;
+            used[z][x] = true;
+            used[z][y] = true;
+            used[y][z] = true;
+            // triangles.push_back({x,z,y});
+            // printf("triangle %d: %d %d %d\n", weight, x, y, z);
+            triangles_adj[x].push_back(triangle_id);
+            triangles_adj[y].push_back(triangle_id);
+            triangles_adj[z].push_back(triangle_id);
+            triangles_weight.push_back(weight);
+            triangle_id ++;
 
+        }
+
+    }
+
+    // Search for cycles of length 4. Method 2
+    for (int i = 0; i < arcs.size(); ++i){
+        int y = arcs[i][1];
+        int x = arcs[i][2]; // y->x
+        int yx = arcs[i][0];
+        if (used[x][y]) continue;
+
+        int bestz = -1;
+        int bestv = -1;
+        int best_w = 0;
+
+        for (const int& z: out_neighbors[x]){
+            if (used[x][y] || used[x][z] ) continue;
+            int xz = pair_crossings[x][z] - pair_crossings[z][x];
+            for (const int& v: in_neighbors[y]){
+                if (used[v][y] || used[v][z] ) continue;
+
+                int zv = pair_crossings[z][v] - pair_crossings[v][z];
+                if (zv > 0){
+                    int vy = pair_crossings[v][y] - pair_crossings[y][v];
+                    int weight = min({xz, zv, vy, yx});
                     if (weight > best_w){
                         bestz = z;
+                        bestv = v;
                         best_w = weight;
                     }
                 }
             }
+        }
 
-            if (bestz >= 0){
-                int z = bestz;
-                int weight = best_w;
-                // triangle y > x -> z -> y
-                used[x][y] = true;
-                used[y][x] = true;
-                used[x][z] = true;
-                used[z][x] = true;
-                used[z][y] = true;
-                used[y][z] = true;
-                // triangles.push_back({x,z,y});
-                // printf("triangle %d: %d %d %d\n", weight, x, y, z);
-                triangles_adj[x].push_back(triangle_id);
-                triangles_adj[y].push_back(triangle_id);
-                triangles_adj[z].push_back(triangle_id);
-                triangles_weight.push_back(weight);
-                triangle_id ++;
+        if (bestz >= 0 && bestv >= 0){
+            int z = bestz;
+            int v = bestv;
+            int weight = best_w;
+            used[x][y] = true;
+            used[y][x] = true;
+            used[x][z] = true;
+            used[z][x] = true;
+            used[v][y] = true;
+            used[y][v] = true;
+            used[z][v] = true;
+            used[v][z] = true;
+            triangles_adj[x].push_back(triangle_id);
+            triangles_adj[y].push_back(triangle_id);
+            triangles_adj[z].push_back(triangle_id);
+            triangles_adj[v].push_back(triangle_id);
+            triangles_weight.push_back(weight);
+            triangle_id ++;
+        }
+    }
 
-            }
+    // Search for cycles of length 5. Method 2
+    // for (int i = 0; i < arcs.size(); ++i){
+    //     int y = arcs[i][1];
+    //     int x = arcs[i][2]; // y->x
+    //     int yx = arcs[i][0];
+    //     if (used[x][y]) continue;
+
+    //     int bestz = -1;
+    //     int bestv = -1;
+    //     int bestu = -1;
+    //     int best_w = 0;
+
+    //     for (const int& z: out_neighbors[x]){
+    //         if (used[x][y] || used[x][z] ) continue;
+    //         int xz = pair_crossings[x][z] - pair_crossings[z][x];
+    //         for (const int& v: in_neighbors[y]){
+    //             if (used[v][y]  ) continue;
+
+    //             for (const int& u: out_neighbors[z]){
+    //                 if (used[z][u] || used[u][v]) continue;
+
+    //                 int zu = pair_crossings[z][u] - pair_crossings[u][z];
+    //                 int uv = pair_crossings[u][v] - pair_crossings[v][u];
+    //                 if (uv > 0){
+    //                     int vy = pair_crossings[v][y] - pair_crossings[y][v];
+    //                     int weight = min({xz, zu, uv, vy, yx});
+    //                     if (weight > best_w){
+    //                         bestz = z;
+    //                         bestv = v;
+    //                         bestu = u;
+    //                         best_w = weight;
+    //                     }
+    //                 }
+    //             }
+
+                
+    //         }
+    //     }
+
+    //     if (bestz >= 0 && bestv >= 0 && bestu >= 0){
+    //         int z = bestz;
+    //         int v = bestv;
+    //         int u = bestu;
+    //         int weight = best_w;
+    //         used[x][y] = true;
+    //         used[y][x] = true;
+    //         used[x][z] = true;
+    //         used[z][x] = true;
+    //         used[z][u] = true;
+    //         used[u][z] = true;
+    //         used[u][v] = true;
+    //         used[v][u] = true;
+    //         used[v][y] = true;
+    //         used[y][v] = true;
+    //         triangles_adj[x].push_back(triangle_id);
+    //         triangles_adj[y].push_back(triangle_id);
+    //         triangles_adj[z].push_back(triangle_id);
+    //         triangles_adj[v].push_back(triangle_id);
+    //         triangles_adj[u].push_back(triangle_id);
+    //         triangles_weight.push_back(weight);
+    //         triangle_id ++;
+    //     }
+    // }
+
+
+    // Search for cycles of length 4
+    // For every vertices x and y, search z and v maximizing the weight of a cycle using x and y
+    // for (const int& x: vertices){
+    //     for (const int& y: vertices){
+    //         if (x==y) continue;
+
+    //         vector<vector<int>> xypaths;
+
+    //         for (const int& z: out_neighbors[x]){
+    //             if (used[z][x] || used[z][y]) continue;
+    //             int zy = pair_crossings[z][y] - pair_crossings[y][z];
+    //             if (zy > 0){
+    //                 int xz = pair_crossings[x][z] - pair_crossings[z][x];
+    //                 xypaths.push_back({min(zy, xz), z});
+    //             }
+    //         }
+    //         sort(xypaths.begin(), xypaths.end(), [](vector<int> a, vector<int>b){
+    //             return a[0] > b[0];
+    //         });
+
+    //         vector<vector<int>> yxpaths;
+
+    //         for (const int& v: in_neighbors[x]){
+    //             if (used[v][x] || used[y][v]) continue;
+    //             int yv = pair_crossings[y][v] - pair_crossings[v][y];
+    //             if (yv > 0){
+    //                 int vx = pair_crossings[v][x] - pair_crossings[x][v];
+    //                 yxpaths.push_back({min(yv, vx), v});
+    //             }
+    //         }
+
+    //         sort(yxpaths.begin(), yxpaths.end(), [](vector<int> a, vector<int>b){
+    //             return a[0] > b[0];
+    //         });
+
+    //         int s = 0;
+    //         int t = 0;
+    //         while ( s < xypaths.size() && t < yxpaths.size()){
+                
+    //             int z = xypaths[s][1];
+    //             int v = yxpaths[t][1];
+    //             int weight = min(xypaths[s][0], yxpaths[t][0]);
+
+    //             used[x][z] = true;
+    //             used[z][x] = true;
+    //             used[z][y] = true;
+    //             used[y][z] = true;
+    //             used[y][v] = true;
+    //             used[v][y] = true;
+    //             used[v][x] = true;
+    //             used[x][v] = true;
+    //             // printf("triangle %d: %d %d %d\n", weight, x, y, z);
+    //             triangles_adj[x].push_back(triangle_id);
+    //             triangles_adj[y].push_back(triangle_id);
+    //             triangles_adj[z].push_back(triangle_id);
+    //             triangles_adj[v].push_back(triangle_id);
+    //             triangles_weight.push_back(weight);
+    //             triangle_id ++;
+    //             s ++;
+    //             t ++;
+    //         }
+
+    //         // Non greedy search
             
-        }
-    }
+    //         // for (const int& z: out_neighbors[x]){
+    //         //     if (used[z][x] || used[z][y]) continue;
+    //         //     int zy = pair_crossings[z][y] - pair_crossings[y][z];
+    //         //     if (zy > 0){
+    //         //         for (const int& v: in_neighbors[x]){
+    //         //             if (used[v][x] || used[y][v]) continue;
+    //         //             int yv = pair_crossings[y][v] - pair_crossings[v][y];
+    //         //             if (yv > 0){
+    //         //                 if (used[v][x] || used[y][v] || used[z][x] || used[z][y]) continue;
+    //         //                 used[x][z] = true;
+    //         //                 used[z][x] = true;
+    //         //                 used[z][y] = true;
+    //         //                 used[y][z] = true;
+    //         //                 used[y][v] = true;
+    //         //                 used[v][y] = true;
+    //         //                 used[v][x] = true;
+    //         //                 used[x][v] = true;
+    //         //                 // triangles.push_back({x,z,y});
+    //         //                 // printf("triangle %d: %d %d %d\n", weight, x, y, z);
+    //         //                 triangles_adj[x].push_back(triangle_id);
+    //         //                 triangles_adj[y].push_back(triangle_id);
+    //         //                 triangles_adj[z].push_back(triangle_id);
+    //         //                 triangles_adj[v].push_back(triangle_id);
+    //         //                 int weight = min(zy, yv);
+    //         //                 int xz = pair_crossings[x][z] - pair_crossings[z][x];
+    //         //                 int vx = pair_crossings[v][x] - pair_crossings[x][v];
+    //         //                 weight = min(weight, min(xz, vx));
+    //         //                 triangles_weight.push_back(weight);
+    //         //                 triangle_id ++;
 
+    //         //             }
+    //         //         }
+    //         //     }
+    //         // }
 
-    for (const int& x: vertices){
-        for (const int& y: vertices){
-            if (x==y) continue;
-
-            for (const int& z: out_neighbors[x]){
-                if (used[z][x] || used[z][y]) continue;
-                int zy = pair_crossings[z][y] - pair_crossings[y][z];
-                if (zy > 0){
-                    for (const int& v: in_neighbors[x]){
-                        if (used[v][x] || used[y][v]) continue;
-                        int yv = pair_crossings[y][v] - pair_crossings[v][y];
-                        if (yv > 0){
-                            if (used[v][x] || used[y][v] || used[z][x] || used[z][y]) continue;
-                            used[x][z] = true;
-                            used[z][x] = true;
-                            used[z][y] = true;
-                            used[y][z] = true;
-                            used[y][v] = true;
-                            used[v][y] = true;
-                            used[v][x] = true;
-                            used[x][v] = true;
-                            // triangles.push_back({x,z,y});
-                            // printf("triangle %d: %d %d %d\n", weight, x, y, z);
-                            triangles_adj[x].push_back(triangle_id);
-                            triangles_adj[y].push_back(triangle_id);
-                            triangles_adj[z].push_back(triangle_id);
-                            triangles_adj[v].push_back(triangle_id);
-                            int weight = min(zy, yv);
-                            int xz = pair_crossings[x][z] - pair_crossings[z][x];
-                            int vx = pair_crossings[v][x] - pair_crossings[x][v];
-                            weight = min(weight, min(xz, vx));
-                            triangles_weight.push_back(weight);
-                            triangle_id ++;
-
-                        }
-                    }
-                }
-            }
-
-        }
-    }
+    //     }
+    // }
 
 
     return make_pair(triangles_adj, triangles_weight);
